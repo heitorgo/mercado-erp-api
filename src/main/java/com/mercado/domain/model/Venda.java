@@ -12,7 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Funcionario {
+public class Venda {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +33,10 @@ public class Funcionario {
 	private Long id;
 	
 	@Column(nullable = false)
-	private String nome;
+	private double valor;
+	
+	@Column(nullable = false)
+	private String descricao;
 	
 	@JsonIgnore
 	@CreationTimestamp
@@ -45,18 +48,19 @@ public class Funcionario {
 	@Column(nullable = false, columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 	
-	@JsonIgnore
-	@Column(nullable = false)
-	private boolean ativo;
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Caixa caixa;
+	
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Funcionario funcionario;
 	
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name = "funcionario_cargo", 
-		joinColumns = @JoinColumn(name = "funcionario_id"),
-		inverseJoinColumns = @JoinColumn(name = "cargo_id"))
-	private List<Cargo> cargos = new ArrayList<>();
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "funcionario")
-	private List<Venda> vendas = new ArrayList<>();
+	@JoinTable(name ="venda_forma_pagamento",
+			joinColumns = @JoinColumn(name = "venda_id"),
+			inverseJoinColumns = @JoinColumn(name="forma_pagamento_id"))
+	private List<FormaPagamento> formasPagamento = new ArrayList<>();
+
 }

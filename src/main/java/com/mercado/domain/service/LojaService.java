@@ -33,7 +33,7 @@ public class LojaService {
 		try {
 			lojaRepository.deleteById(id);
 		}catch(DataIntegrityViolationException e) {
-			throw new EntidadeEmUsoException(String.format("A loja de codigo identificador %d já está em uso", id));
+			throw new EntidadeEmUsoException(String.format("A loja de codigo identificador %d está em uso", id));
 		}
 	}
 

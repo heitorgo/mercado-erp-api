@@ -10,8 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,7 +24,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Funcionario {
+public class Caixa {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +32,7 @@ public class Funcionario {
 	private Long id;
 	
 	@Column(nullable = false)
-	private String nome;
+	private double saldo;
 	
 	@JsonIgnore
 	@CreationTimestamp
@@ -49,14 +48,12 @@ public class Funcionario {
 	@Column(nullable = false)
 	private boolean ativo;
 	
-	@JsonIgnore
-	@ManyToMany
-	@JoinTable(name = "funcionario_cargo", 
-		joinColumns = @JoinColumn(name = "funcionario_id"),
-		inverseJoinColumns = @JoinColumn(name = "cargo_id"))
-	private List<Cargo> cargos = new ArrayList<>();
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Loja loja;
 	
+	@OneToMany(mappedBy = "caixa")
 	@JsonIgnore
-	@OneToMany(mappedBy = "funcionario")
 	private List<Venda> vendas = new ArrayList<>();
+
 }

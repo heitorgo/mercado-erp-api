@@ -1,18 +1,12 @@
 package com.mercado.domain.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -25,7 +19,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Funcionario {
+public class FormaPagamento {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,13 +27,13 @@ public class Funcionario {
 	private Long id;
 	
 	@Column(nullable = false)
-	private String nome;
+	private String titulo;
 	
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
 	private LocalDateTime dataCadastro;
-	
+
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
@@ -48,15 +42,5 @@ public class Funcionario {
 	@JsonIgnore
 	@Column(nullable = false)
 	private boolean ativo;
-	
-	@JsonIgnore
-	@ManyToMany
-	@JoinTable(name = "funcionario_cargo", 
-		joinColumns = @JoinColumn(name = "funcionario_id"),
-		inverseJoinColumns = @JoinColumn(name = "cargo_id"))
-	private List<Cargo> cargos = new ArrayList<>();
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "funcionario")
-	private List<Venda> vendas = new ArrayList<>();
+
 }
