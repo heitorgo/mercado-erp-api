@@ -1,8 +1,8 @@
 create table funcionario(
 	id bigint not null auto_increment,
 	nome varchar(60) not null,
-    data_cadastro timestamp not null,
-    data_atualizacao timestamp not null,
+    data_cadastro datetime,
+    data_atualizacao datetime,
     ativo boolean not null,
     
     primary key (id)

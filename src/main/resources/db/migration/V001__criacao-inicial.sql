@@ -2,8 +2,8 @@ create table empresa(
 	id bigint not null auto_increment,
 	nome varchar(60) not null,
 	razao_social varchar(60),
-    data_cadastro timestamp not null,
-    data_atualizacao timestamp not null,
+    data_cadastro datetime,
+    data_atualizacao datetime,
     ativo boolean not null,
     
     primary key (id)

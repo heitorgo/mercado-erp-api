@@ -47,8 +47,7 @@ insert into funcionario_cargo (funcionario_id, cargo_id) values(4,3);
 insert into funcionario_cargo (funcionario_id, cargo_id) values(5,4);
 insert into funcionario_cargo (funcionario_id, cargo_id) values(4,4);
 
-insert into caixa (id, loja_id, saldo, data_cadastro, data_atualizacao, ativo) values(1, 1, 0, utc_timestamp, utc_timestamp, true);
-insert into caixa (id, loja_id, saldo, data_cadastro, data_atualizacao, ativo) values(2, 1, 0, utc_timestamp, utc_timestamp, true);
+insert into caixa (id, nome, loja_id, saldo, data_cadastro, data_atualizacao, ativo) values(1, "Caixa Principal", 1, 0, utc_timestamp, utc_timestamp, true);
 
 insert into forma_pagamento (id, titulo, data_cadastro, data_atualizacao, ativo) values(1, "Dinheiro", utc_timestamp, utc_timestamp, true);
 insert into forma_pagamento (id, titulo, data_cadastro, data_atualizacao, ativo) values(2, "Débito", utc_timestamp, utc_timestamp, true);

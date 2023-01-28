@@ -36,12 +36,12 @@ public class Loja {
 	
 	@JsonIgnore
 	@CreationTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(columnDefinition = "datetime")
 	private LocalDateTime dataCadastro;
 	
 	@JsonIgnore
 	@UpdateTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 	
 	@JsonIgnore

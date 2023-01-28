@@ -32,16 +32,19 @@ public class Caixa {
 	private Long id;
 	
 	@Column(nullable = false)
+	private String nome;
+	
+	@Column(nullable = false)
 	private double saldo;
 	
 	@JsonIgnore
 	@CreationTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(columnDefinition = "datetime")
 	private LocalDateTime dataCadastro;
 	
 	@JsonIgnore
 	@UpdateTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 	
 	@JsonIgnore
