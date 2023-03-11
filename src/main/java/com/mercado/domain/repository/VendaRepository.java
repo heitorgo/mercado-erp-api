@@ -14,5 +14,7 @@ public interface VendaRepository  extends JpaRepository<Venda, Long>, JpaSpecifi
 	
 	@Query("from Venda v join fetch v.caixa join fetch v.funcionario left join fetch v.formasPagamento")
 	List<Venda> findAll();
+	
+	List<Venda> findAllByDescricaoContaining(String descricao);
 
 }

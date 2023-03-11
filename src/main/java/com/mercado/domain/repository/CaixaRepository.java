@@ -14,5 +14,7 @@ public interface CaixaRepository  extends JpaRepository<Caixa, Long>, JpaSpecifi
 	
 	@Query("from Caixa c join fetch c.loja")
 	List<Caixa> findAll();
+	
+	List<Caixa> findAllByNomeContaining(String nome);
 
 }

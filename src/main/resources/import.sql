@@ -1,6 +1,6 @@
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(1, "Auto Peças Itu", utc_timestamp, utc_timestamp, true)
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(2, "Atelie mãos de costura", utc_timestamp, utc_timestamp, true)
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(3, "Mercearia do seu zé", utc_timestamp, utc_timestamp, true)
+insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(1, "Auto Peças Itu", "Auto peças itu Ltda", utc_timestamp, utc_timestamp, true)
+insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(2, "Atelie mãos de costura", "Atelie mãos de costura Ltda", utc_timestamp, utc_timestamp, true)
+insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(3, "Mercado utils", "Mercado utils Ltda", utc_timestamp, utc_timestamp, true)
 
 insert into loja (id, nome, empresa_id, data_cadastro, data_atualizacao, ativo) values(1, "Loja 1", 1, utc_timestamp, utc_timestamp, true)
 insert into loja (id, nome, empresa_id, data_cadastro, data_atualizacao, ativo) values(2, "Loja 2", 1, utc_timestamp, utc_timestamp, true)

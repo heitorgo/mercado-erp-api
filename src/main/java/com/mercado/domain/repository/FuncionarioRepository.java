@@ -15,5 +15,7 @@ public interface FuncionarioRepository  extends JpaRepository<Funcionario, Long>
 	
 	@Query("from Funcionario f left join fetch f.cargos")
 	List<Funcionario> findAll();
+	
+	List<Funcionario> findAllByNomeContaining(String nome);
 
 }

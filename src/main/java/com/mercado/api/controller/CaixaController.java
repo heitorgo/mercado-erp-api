@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
+import com.mercado.domain.exception.CaixaNaoEncontradoException;
 import com.mercado.domain.exception.EntidadeNaoEncontradaException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Caixa;
 import com.mercado.domain.repository.CaixaRepository;
 import com.mercado.domain.service.CaixaService;
@@ -38,52 +41,45 @@ public class CaixaController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Caixa> buscar(@PathVariable Long id){
-		Optional<Caixa> caixa = caixaRepository.findById(id);
-		if(caixa.isEmpty()) {
+	public Caixa buscar(@PathVariable Long id){
+		return caixaService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/nome")
+	public ResponseEntity<?> listarPorNome(String nome){
+		List<Caixa> caixas = caixaRepository.findAllByNomeContaining(nome);
+		if(caixas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(caixa.get());
+		return ResponseEntity.ok(caixas);
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> adicionar(@RequestBody Caixa caixa){
+	@ResponseStatus(HttpStatus.CREATED)
+	public Caixa adicionar(@RequestBody @Valid Caixa caixa){
 		try {
-			caixaService.salvar(caixa);
-			return ResponseEntity.status(HttpStatus.CREATED).body(caixa);
-		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return caixaService.salvar(caixa);
+		}catch(CaixaNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar( @PathVariable Long id, @RequestBody Caixa caixa){
+	public Caixa atualizar( @PathVariable Long id, @RequestBody @Valid Caixa caixa){
+		Caixa caixaAtual = caixaService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(caixa, caixaAtual, "id", "dataCadastro");
 		try {
-			Optional<Caixa> caixaAtual = caixaRepository.findById(id);
-			if(caixaAtual.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			BeanUtils.copyProperties(caixa, caixaAtual.get(), "id", "dataCadastro");
-			Caixa caixaSalvo = caixaService.salvar(caixaAtual.get());
-			return ResponseEntity.ok(caixaSalvo);
+			return caixaService.salvar(caixaAtual);
 		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			throw new NegocioException(e.getMessage(), e);
 		}
 		
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<Caixa> caixa = caixaRepository.findById(id);
-			if(caixa.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			caixaService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long id){
+		caixaService.excluir(id);
 	}
 
 }

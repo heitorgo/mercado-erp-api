@@ -9,12 +9,12 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.exemploworks.exemplolog</groupId>
-	<artifactId>testefood</artifactId>
+	<artifactId>mercado-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>testefood</name>
+	<name>mercado-api</name>
 	<description>exemplo click</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>15</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -67,6 +67,14 @@
 		<dependency>
   			<groupId>org.flywaydb</groupId>
   			<artifactId>flyway-mysql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency> 
+    		<groupId>org.springframework.boot</groupId> 
+    		<artifactId>spring-boot-starter-validation</artifactId> 
 		</dependency>
 	</dependencies>
 

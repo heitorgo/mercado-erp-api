@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
 import com.mercado.domain.model.FormaPagamento;
 import com.mercado.domain.repository.FormaPagamentoRepository;
 import com.mercado.domain.service.FormaPagamentoService;
@@ -38,43 +38,36 @@ public class FormaPagamentoController{
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<FormaPagamento> buscar(@PathVariable Long id){
-		Optional<FormaPagamento> formaPagamento = formaPagamentoRepository.findById(id);
-		if(formaPagamento.isEmpty()) {
+	public FormaPagamento buscar(@PathVariable Long id){
+		return formaPagamentoService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/titulo")
+	public ResponseEntity<?> listarPorTitulo(String titulo){
+		List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAllByTituloContaining(titulo);
+		if(formasPagamento.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(formaPagamento.get());
+		return ResponseEntity.ok(formasPagamento);
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public FormaPagamento adicionar(@RequestBody FormaPagamento formaPagamento) {
+	public FormaPagamento adicionar(@RequestBody @Valid FormaPagamento formaPagamento) {
 		return formaPagamentoService.salvar(formaPagamento);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar( @PathVariable Long id, @RequestBody FormaPagamento formaPagamento){
-		Optional<FormaPagamento> formaPagamentoAtual = formaPagamentoRepository.findById(id);
-		if(formaPagamentoAtual.isEmpty()) {
-			return ResponseEntity.notFound().build();
-		}
-		BeanUtils.copyProperties(formaPagamento, formaPagamentoAtual.get(), "id", "dataCadastro");
-		FormaPagamento formaPagamentoSalva = formaPagamentoService.salvar(formaPagamentoAtual.get());
-		return ResponseEntity.ok(formaPagamentoSalva);
+	public FormaPagamento atualizar( @PathVariable Long id, @RequestBody @Valid FormaPagamento formaPagamento){
+		FormaPagamento formaPagamentoAtual = formaPagamentoService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(formaPagamento, formaPagamentoAtual, "id", "dataCadastro");
+		return formaPagamentoService.salvar(formaPagamentoAtual);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<FormaPagamento> formaPagamento = formaPagamentoRepository.findById(id);
-			if(formaPagamento.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			formaPagamentoService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long id){
+		formaPagamentoService.excluir(id);
 	}
 
 }

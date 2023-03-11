@@ -2,14 +2,14 @@ package com.mercado.domain.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.mercado.domain.exception.CargoNaoEncontradoException;
 import com.mercado.domain.exception.EntidadeEmUsoException;
-import com.mercado.domain.exception.EntidadeNaoEncontradaException;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.repository.CargoRepository;
-import com.mercado.domain.repository.LojaRepository;
 
 @Service
 public class CargoService {
@@ -18,13 +18,13 @@ public class CargoService {
 	private CargoRepository cargoRepository;
 	
 	@Autowired
-	private LojaRepository lojaRepository;
+	private LojaService lojaService;
+	
+	private static final String msg_cargo_em_uso="Cargo de codigo identificador %d está em uso";
 	
 	public Cargo salvar(Cargo cargo) {
 		Long lojaId = cargo.getLoja().getId();
-		Loja loja = lojaRepository.findById(lojaId).orElseThrow(
-				() -> new EntidadeNaoEncontradaException(String.format(
-						"A loja de codigo identificador %d não existe", lojaId)));
+		Loja loja = lojaService.buscarOuFalhar(lojaId);
 		cargo.setLoja(loja);
 		return cargoRepository.save(cargo);
 	}
@@ -32,9 +32,16 @@ public class CargoService {
 	public void excluir(Long id) {
 		try {
 			cargoRepository.deleteById(id);
+		}catch(EmptyResultDataAccessException e) {
+			throw new CargoNaoEncontradoException(id);
 		}catch(DataIntegrityViolationException e) {
-			throw new EntidadeEmUsoException(String.format("O cargo de codigo identificador %d está em uso", id));
+			throw new EntidadeEmUsoException(String.format(msg_cargo_em_uso, id));
 		}
+	}
+	
+	public Cargo buscarOuFalhar(Long id) {
+		return cargoRepository.findById(id).orElseThrow(() ->
+		new CargoNaoEncontradoException(id));
 	}
 
 }

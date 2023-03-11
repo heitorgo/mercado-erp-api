@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
 import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.repository.FuncionarioRepository;
 import com.mercado.domain.service.FuncionarioService;
@@ -38,43 +38,35 @@ public class FuncionarioController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Funcionario> buscar(@PathVariable Long id){
-		Optional<Funcionario> funcionario = funcionarioRepository.findById(id);
-		if(funcionario.isEmpty()) {
+	public Funcionario buscar(@PathVariable Long id){
+		return funcionarioService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/nome")
+	public ResponseEntity<?> listarPorNome(String nome){
+		List<Funcionario> funcionarios = funcionarioRepository.findAllByNomeContaining(nome);
+		if(funcionarios.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(funcionario.get());
+		return ResponseEntity.ok(funcionarios);
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Funcionario adicionar(@RequestBody Funcionario funcionario){
+	public Funcionario adicionar(@RequestBody @Valid Funcionario funcionario){
 		return funcionarioService.salvar(funcionario);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Funcionario funcionario){
-		Optional<Funcionario> funcionarioAtual = funcionarioRepository.findById(id);
-		if(funcionarioAtual.isEmpty()) {
-			return ResponseEntity.notFound().build();
-		}
-		BeanUtils.copyProperties(funcionario, funcionarioAtual.get(), "id", "dataCadastro");
-		Funcionario funcionarioSalvo = funcionarioService.salvar(funcionarioAtual.get());
-		return ResponseEntity.ok(funcionarioSalvo);
+	public Funcionario atualizar(@PathVariable Long id, @RequestBody @Valid Funcionario funcionario){
+		Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(funcionario, funcionarioAtual, "id", "dataCadastro");
+		return funcionarioService.salvar(funcionarioAtual);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<Funcionario> funcionario = funcionarioRepository.findById(id);
-			if(funcionario.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			funcionarioService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	public void remover(@PathVariable Long id){
+		funcionarioService.excluir(id);
 	}
 
 }

@@ -20,9 +20,9 @@ alter table funcionario auto_increment = 1;
 alter table venda auto_increment = 1;
 alter table forma_pagamento auto_increment = 1;
 
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(1, "Auto Peças Itu", utc_timestamp, utc_timestamp, true);
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(2, "Atelie maos de costura", utc_timestamp, utc_timestamp, true);
-insert into empresa (id, nome, data_cadastro, data_atualizacao, ativo) values(3, "Mercearia do seu ze", utc_timestamp, utc_timestamp, true);
+insert into empresa (id, nome, razao_social, data_cadastro, data_atualizacao, ativo) values(1, "Auto Peças Itu", "Auto Peças Itu LTDA", utc_timestamp, utc_timestamp, true);
+insert into empresa (id, nome, razao_social, data_cadastro, data_atualizacao, ativo) values(2, "Atelie Mãos de Costura", "Atelie Mãos de Costura LTDA", utc_timestamp, utc_timestamp, true);
+insert into empresa (id, nome, razao_social, data_cadastro, data_atualizacao, ativo) values(3, "Mercearia Util", "Mercearia Util LTDA", utc_timestamp, utc_timestamp, true);
 
 insert into loja (id, nome, saldo, empresa_id, data_cadastro, data_atualizacao, ativo) values(1, "Loja 1", 0, 1, utc_timestamp, utc_timestamp, true);
 insert into loja (id, nome, saldo, empresa_id, data_cadastro, data_atualizacao, ativo) values(2, "Loja 2", 0, 1, utc_timestamp, utc_timestamp, true);

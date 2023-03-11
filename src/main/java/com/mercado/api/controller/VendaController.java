@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
-import com.mercado.domain.exception.EntidadeNaoEncontradaException;
+import com.mercado.domain.exception.NegocioException;
+import com.mercado.domain.exception.VendaNaoEncontradaException;
 import com.mercado.domain.model.Venda;
 import com.mercado.domain.repository.VendaRepository;
 import com.mercado.domain.service.VendaService;
@@ -38,52 +40,45 @@ public class VendaController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Venda> buscar(@PathVariable Long id){
-		Optional<Venda> venda = vendaRepository.findById(id);
-		if(venda.isEmpty()) {
+	public Venda buscar(@PathVariable Long id){
+		return vendaService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/descricao")
+	public ResponseEntity<?> listarPorDescricao(String descricao){
+		List<Venda> vendas = vendaRepository.findAllByDescricaoContaining(descricao);
+		if(vendas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(venda.get());
+		return ResponseEntity.ok(vendas);
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> adicionar(@RequestBody Venda venda){
+	@ResponseStatus(HttpStatus.CREATED)
+	public Venda adicionar(@RequestBody @Valid Venda venda){
 		try {
-			vendaService.salvar(venda);
-			return ResponseEntity.status(HttpStatus.CREATED).body(venda);
-		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return vendaService.salvar(venda);
+		}catch(VendaNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar( @PathVariable Long id, @RequestBody Venda venda){
+	public Venda atualizar( @PathVariable Long id, @RequestBody @Valid Venda venda){
+		Venda vendaAtual = vendaService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(venda, vendaAtual, "id", "dataCadastro");
 		try {
-			Optional<Venda> vendaAtual = vendaRepository.findById(id);
-			if(vendaAtual.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			BeanUtils.copyProperties(venda, vendaAtual.get(), "id", "dataCadastro");
-			Venda vendaSalva = vendaService.salvar(vendaAtual.get());
-			return ResponseEntity.ok(vendaSalva);
-		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			return vendaService.salvar(vendaAtual);
+		}catch(VendaNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
 		
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<Venda> venda = vendaRepository.findById(id);
-			if(venda.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			vendaService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long id){
+		vendaService.excluir(id);
 	}
 
 }

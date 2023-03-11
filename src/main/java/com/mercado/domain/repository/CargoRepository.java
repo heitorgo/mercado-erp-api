@@ -11,5 +11,7 @@ public interface CargoRepository extends JpaRepository<Cargo, Long>{
 	
 	@Query("from Cargo c join fetch c.loja")
 	List<Cargo> findAll();
+	
+	List<Cargo> findAllByTituloContaining(String titulo);
 
 }

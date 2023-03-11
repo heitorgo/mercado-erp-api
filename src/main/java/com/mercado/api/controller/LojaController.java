@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
-import com.mercado.domain.exception.EntidadeNaoEncontradaException;
+import com.mercado.domain.exception.LojaNaoEncontradaException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.repository.LojaRepository;
 import com.mercado.domain.service.LojaService;
@@ -38,52 +40,45 @@ public class LojaController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Loja> buscar(@PathVariable Long id){
-		Optional<Loja> loja = lojaRepository.findById(id);
-		if(loja.isEmpty()) {
+	public Loja buscar(@PathVariable Long id){
+		return lojaService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/nome")
+	public ResponseEntity<?> listarPorNome(String nome){
+		List<Loja> lojas = lojaRepository.findAllByNomeContaining(nome);
+		if(lojas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(loja.get());
+		return ResponseEntity.ok(lojas);
+		
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> adicionar(@RequestBody Loja loja){
+	@ResponseStatus(HttpStatus.CREATED)
+	public Loja adicionar(@RequestBody @Valid Loja loja){
 		try {
-			lojaService.salvar(loja);
-			return ResponseEntity.status(HttpStatus.CREATED).body(loja);
-		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return lojaService.salvar(loja);
+		}catch(LojaNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar( @PathVariable Long id, @RequestBody Loja loja){
+	public Loja atualizar( @PathVariable Long id, @RequestBody @Valid Loja loja){
+		Loja lojaAtual = lojaService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(loja, lojaAtual, "id", "dataCadastro");
 		try {
-			Optional<Loja> lojaAtual = lojaRepository.findById(id);
-			if(lojaAtual.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			BeanUtils.copyProperties(loja, lojaAtual.get(), "id", "dataCadastro");
-			Loja lojaSalva = lojaService.salvar(lojaAtual.get());
-			return ResponseEntity.ok(lojaSalva);
-		}catch(EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			return lojaService.salvar(lojaAtual);
+		}catch(LojaNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage(), e);
 		}
-		
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<Loja> loja = lojaRepository.findById(id);
-			if(loja.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			lojaService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long id){
+		lojaService.excluir(id);
 	}
 
 }

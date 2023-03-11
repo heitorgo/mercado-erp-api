@@ -14,5 +14,7 @@ public interface LojaRepository  extends JpaRepository<Loja, Long>, JpaSpecifica
 	
 	@Query("from Loja l join fetch l.empresa")
 	List<Loja> findAll();
+	
+	List<Loja> findAllByNomeContaining(String nome);
 
 }

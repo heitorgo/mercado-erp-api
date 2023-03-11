@@ -1,7 +1,8 @@
 package com.mercado.api.controller;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.EntidadeEmUsoException;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.repository.EmpresaRepository;
 import com.mercado.domain.service.EmpresaService;
@@ -38,43 +38,35 @@ public class EmpresaController{
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Empresa> buscar(@PathVariable Long id){
-		Optional<Empresa> empresa = empresaRepository.findById(id);
-		if(empresa.isEmpty()) {
+	public Empresa buscar(@PathVariable Long id){
+		return empresaService.buscarOuFalhar(id);
+	}
+	
+	@GetMapping("/nome")
+	public ResponseEntity<?> listarPorNome(String nome){
+		List<Empresa> empresas = empresaRepository.findAllByNomeContaining(nome);
+		if(empresas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(empresa.get());
+		return ResponseEntity.ok(empresas);
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Empresa adicionar(@RequestBody Empresa empresa) {
+	public Empresa adicionar(@RequestBody @Valid Empresa empresa) {
 		return empresaService.salvar(empresa);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar( @PathVariable Long id, @RequestBody Empresa empresa){
-		Optional<Empresa> empresaAtual = empresaRepository.findById(id);
-		if(empresaAtual.isEmpty()) {
-			return ResponseEntity.notFound().build();
-		}
-		BeanUtils.copyProperties(empresa, empresaAtual.get(), "id", "dataCadastro");
-		Empresa empresaSalva = empresaService.salvar(empresaAtual.get());
-		return ResponseEntity.ok(empresaSalva);
+	public Empresa atualizar( @PathVariable Long id, @RequestBody @Valid Empresa empresa){
+		Empresa empresaAtual = empresaService.buscarOuFalhar(id);
+		BeanUtils.copyProperties(empresa, empresaAtual, "id", "dataCadastro");
+		return empresaService.salvar(empresaAtual);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable Long id){
-		try {
-			Optional<Empresa> empresa = empresaRepository.findById(id);
-			if(empresa.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			empresaService.excluir(id);
-			return ResponseEntity.noContent().build();
-		}catch(EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	public void remover(@PathVariable Long id){
+		empresaService.excluir(id);
 	}
 
 }
