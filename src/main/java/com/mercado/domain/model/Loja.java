@@ -45,10 +45,9 @@ public class Loja {
 	@Column(nullable = false)
 	private String nome;
 	
+	@JsonIgnore
 	@PositiveOrZero
-	@NotNull
-	@Column(nullable = false)
-	private BigDecimal saldo;
+	private BigDecimal saldo = new BigDecimal(0);
 	
 	@JsonIgnore
 	@CreationTimestamp

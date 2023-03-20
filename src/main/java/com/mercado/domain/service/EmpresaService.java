@@ -1,5 +1,7 @@
 package com.mercado.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,10 +20,12 @@ public class EmpresaService {
 	
 	private static final String msg_empresa_em_uso="Empresa de codigo identificador %d está em uso";
 	
+	@Transactional
 	public Empresa salvar(Empresa empresa) {
 		return empresaRepository.save(empresa);
 	}
 	
+	@Transactional
 	public void excluir(Long id) {
 		try {
 			empresaRepository.deleteById(id);

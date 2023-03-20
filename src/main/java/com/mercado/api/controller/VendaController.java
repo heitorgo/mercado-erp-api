@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.domain.exception.CaixaNaoEncontradoException;
+import com.mercado.domain.exception.FuncionarioNaoEncontradoException;
 import com.mercado.domain.exception.NegocioException;
-import com.mercado.domain.exception.VendaNaoEncontradaException;
 import com.mercado.domain.model.Venda;
 import com.mercado.domain.repository.VendaRepository;
 import com.mercado.domain.service.VendaService;
@@ -58,7 +59,9 @@ public class VendaController {
 	public Venda adicionar(@RequestBody @Valid Venda venda){
 		try {
 			return vendaService.salvar(venda);
-		}catch(VendaNaoEncontradaException e) {
+		}catch(CaixaNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}catch(FuncionarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
@@ -69,7 +72,9 @@ public class VendaController {
 		BeanUtils.copyProperties(venda, vendaAtual, "id", "dataCadastro");
 		try {
 			return vendaService.salvar(vendaAtual);
-		}catch(VendaNaoEncontradaException e) {
+		}catch(CaixaNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}catch(FuncionarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 		

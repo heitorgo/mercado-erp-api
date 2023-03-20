@@ -1,5 +1,7 @@
 package com.mercado.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,10 +20,12 @@ public class FormaPagamentoService {
 	
 	private static final String msg_forma_pagamento_em_uso = "A forma de pagamento de codigo identificador %d está em uso";
 	
+	@Transactional
 	public FormaPagamento salvar(FormaPagamento formaPagamento) {
 		return formaPagamentoRepository.save(formaPagamento);
 	}
 	
+	@Transactional
 	public void excluir(Long id) {
 		try {
 			formaPagamentoRepository.deleteById(id);

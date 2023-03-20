@@ -46,6 +46,6 @@ public class FormaPagamento {
 	
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo;
+	private boolean ativo=true;
 
 }

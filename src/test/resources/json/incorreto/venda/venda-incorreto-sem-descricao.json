@@ -1,0 +1,10 @@
+{
+    "valor": 40.0,
+    "descricao": null,
+    "caixa": {
+        "id": 1
+    },
+    "funcionario": {
+        "id": 1
+    }
+}

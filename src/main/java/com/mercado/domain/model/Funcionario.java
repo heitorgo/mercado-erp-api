@@ -10,19 +10,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
+import javax.validation.groups.ConvertGroup;
+import javax.validation.groups.Default;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mercado.core.validation.Groups;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -55,14 +56,14 @@ public class Funcionario {
 	
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo;
+	private boolean ativo=true;
 	
-	@JsonIgnore
-	@ManyToMany
-	@JoinTable(name = "funcionario_cargo", 
-		joinColumns = @JoinColumn(name = "funcionario_id"),
-		inverseJoinColumns = @JoinColumn(name = "cargo_id"))
-	private List<Cargo> cargos = new ArrayList<>();
+	@ConvertGroup(from=Default.class, to=Groups.CargoId.class)
+	@Valid
+	@NotNull
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Cargo cargo;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "funcionario")

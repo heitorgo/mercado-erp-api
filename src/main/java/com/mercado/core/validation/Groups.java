@@ -6,5 +6,6 @@ public interface Groups {
 	public interface LojaId {};
 	public interface FuncionarioId {};
 	public interface CaixaId {};
+	public interface CargoId {};
 
 }

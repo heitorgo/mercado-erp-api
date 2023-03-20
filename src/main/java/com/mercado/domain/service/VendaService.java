@@ -1,5 +1,7 @@
 package com.mercado.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,6 +28,7 @@ public class VendaService {
 	
 	private static final String msg_venda_em_uso="A venda de codigo identificador %d está em uso";
 	
+	@Transactional
 	public Venda salvar(Venda venda) {
 		Long caixaId = venda.getCaixa().getId();
 		Long funcionarioId = venda.getFuncionario().getId();
@@ -36,6 +39,7 @@ public class VendaService {
 		return vendaRepository.save(venda);
 	}
 	
+	@Transactional
 	public void excluir(Long id) {
 		try {
 			vendaRepository.deleteById(id);

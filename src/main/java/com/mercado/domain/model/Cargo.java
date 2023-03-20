@@ -2,6 +2,8 @@ package com.mercado.domain.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -32,6 +35,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Cargo {
 	
+	@NotNull(groups=Groups.CargoId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
@@ -60,7 +64,7 @@ public class Cargo {
 	
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo;
+	private boolean ativo=true;
 	
 	@Valid
 	@ConvertGroup(from=Default.class, to=Groups.LojaId.class)
@@ -68,5 +72,9 @@ public class Cargo {
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Loja loja;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "cargo")
+	private List<Funcionario> funcionarios = new ArrayList<>();
 
 }

@@ -1,5 +1,7 @@
 package com.mercado.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class LojaService {
 	
 	private static final String msg_loja_em_uso = "Loja de codigo identificador %d está em uso";
 	
+	@Transactional
 	public Loja salvar(Loja loja) {
 		Long empresaId = loja.getEmpresa().getId();
 		Empresa empresa = empresaService.buscarOuFalhar(empresaId);
@@ -28,6 +31,7 @@ public class LojaService {
 		return lojaRepository.save(loja);
 	}
 	
+	@Transactional
 	public void excluir(Long id) {
 		try {
 			lojaRepository.deleteById(id);

@@ -1,5 +1,7 @@
 package com.mercado.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,6 +24,7 @@ public class CargoService {
 	
 	private static final String msg_cargo_em_uso="Cargo de codigo identificador %d está em uso";
 	
+	@Transactional
 	public Cargo salvar(Cargo cargo) {
 		Long lojaId = cargo.getLoja().getId();
 		Loja loja = lojaService.buscarOuFalhar(lojaId);
@@ -29,6 +32,7 @@ public class CargoService {
 		return cargoRepository.save(cargo);
 	}
 	
+	@Transactional
 	public void excluir(Long id) {
 		try {
 			cargoRepository.deleteById(id);

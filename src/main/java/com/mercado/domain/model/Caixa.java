@@ -23,7 +23,6 @@ import javax.validation.groups.Default;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mercado.core.validation.Groups;
 
@@ -64,7 +63,7 @@ public class Caixa {
 	
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo;
+	private boolean ativo=true;
 	
 	@ConvertGroup(from = Default.class, to = Groups.LojaId.class)
 	@Valid

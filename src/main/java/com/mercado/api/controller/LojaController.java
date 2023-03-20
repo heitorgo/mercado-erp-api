@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.LojaNaoEncontradaException;
+import com.mercado.domain.exception.EmpresaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.repository.LojaRepository;
@@ -59,7 +59,7 @@ public class LojaController {
 	public Loja adicionar(@RequestBody @Valid Loja loja){
 		try {
 			return lojaService.salvar(loja);
-		}catch(LojaNaoEncontradaException e) {
+		}catch(EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
@@ -70,7 +70,7 @@ public class LojaController {
 		BeanUtils.copyProperties(loja, lojaAtual, "id", "dataCadastro");
 		try {
 			return lojaService.salvar(lojaAtual);
-		}catch(LojaNaoEncontradaException e) {
+		}catch(EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}

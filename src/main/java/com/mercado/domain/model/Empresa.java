@@ -54,6 +54,7 @@ public class Empresa {
 	@PastOrPresent
 	private LocalDateTime dataAtualizacao;
 	
+	@JsonIgnore
 	@NotNull
 	@Column(nullable = false)
 	private boolean ativo=true;

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.domain.exception.CargoNaoEncontradoException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.repository.FuncionarioRepository;
 import com.mercado.domain.service.FuncionarioService;
@@ -54,14 +56,22 @@ public class FuncionarioController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Funcionario adicionar(@RequestBody @Valid Funcionario funcionario){
-		return funcionarioService.salvar(funcionario);
+		try {
+			return funcionarioService.salvar(funcionario);
+		}catch(CargoNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
 	}
 	
 	@PutMapping("/{id}")
 	public Funcionario atualizar(@PathVariable Long id, @RequestBody @Valid Funcionario funcionario){
 		Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(funcionario, funcionarioAtual, "id", "dataCadastro");
-		return funcionarioService.salvar(funcionarioAtual);
+		try {
+			return funcionarioService.salvar(funcionarioAtual);
+		}catch(CargoNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
 	}
 	
 	@DeleteMapping("/{id}")

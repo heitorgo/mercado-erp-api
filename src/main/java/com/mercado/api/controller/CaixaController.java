@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.CaixaNaoEncontradoException;
-import com.mercado.domain.exception.EntidadeNaoEncontradaException;
+import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Caixa;
 import com.mercado.domain.repository.CaixaRepository;
@@ -59,7 +58,7 @@ public class CaixaController {
 	public Caixa adicionar(@RequestBody @Valid Caixa caixa){
 		try {
 			return caixaService.salvar(caixa);
-		}catch(CaixaNaoEncontradoException e) {
+		}catch(LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
@@ -70,7 +69,7 @@ public class CaixaController {
 		BeanUtils.copyProperties(caixa, caixaAtual, "id", "dataCadastro");
 		try {
 			return caixaService.salvar(caixaAtual);
-		}catch(EntidadeNaoEncontradaException e) {
+		}catch(LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 		

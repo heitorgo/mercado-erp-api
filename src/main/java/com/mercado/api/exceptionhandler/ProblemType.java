@@ -8,7 +8,7 @@ public enum ProblemType {
 	MENSAGEM_INCOMPREENSIVEL("/mensagem-incompreensivel", "Mensagem Incompreensível"),
 	RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrado", "Recurso não encontrado"),
 	ENTIDADE_EM_USO("/entidade-em-uso", "Entidade em uso"),
-	ERRO_NEGOCIO("/erro-negocio", "Violação de regra de negocio"),
+	ERRO_NEGOCIO("/erro-negocio", "Violação de regra de negócio"),
 	ERRO_TIPO_NAO_SUPORTADO("/tipo-nao-suportado", "Erro tipo não suportado"),
 	ERRO_SISTEMA("/erro-sistema", "Erro de sistema"),
 	DADOS_INVALIDOS("/dados-invalidos", "Dados inválidos"),

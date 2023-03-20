@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercado.domain.exception.CargoNaoEncontradoException;
+import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.repository.CargoRepository;
@@ -58,7 +58,7 @@ public class CargoController{
 	public Cargo adicionar(@RequestBody @Valid Cargo cargo) {
 		try {
 			return cargoService.salvar(cargo);
-		}catch(CargoNaoEncontradoException e) {
+		}catch(LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 		
@@ -70,7 +70,7 @@ public class CargoController{
 		BeanUtils.copyProperties(cargo, cargoAtual, "id", "dataCadastro");
 		try {
 			return cargoService.salvar(cargoAtual);
-		}catch(CargoNaoEncontradoException e) {
+		}catch(LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
