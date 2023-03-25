@@ -1,6 +1,6 @@
 package com.mercado.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,13 +46,13 @@ public class Empresa {
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	@PastOrPresent
-	private LocalDateTime dataCadastro;
+	private OffsetDateTime dataCadastro;
 
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	@PastOrPresent
-	private LocalDateTime dataAtualizacao;
+	private OffsetDateTime dataAtualizacao;
 	
 	@JsonIgnore
 	@NotNull

@@ -31,11 +31,13 @@ public class VendaService {
 	@Transactional
 	public Venda salvar(Venda venda) {
 		Long caixaId = venda.getCaixa().getId();
-		Long funcionarioId = venda.getFuncionario().getId();
 		Caixa caixa = caixaService.buscarOuFalhar(caixaId);
-		Funcionario funcionario = funcionarioService.buscarOuFalhar(funcionarioId);
 		venda.setCaixa(caixa);
-		venda.setFuncionario(funcionario);
+		if(venda.getFuncionario() != null) {
+			Long funcionarioId = venda.getFuncionario().getId();
+			Funcionario funcionario = funcionarioService.buscarOuFalhar(funcionarioId);
+			venda.setFuncionario(funcionario);
+		}
 		return vendaRepository.save(venda);
 	}
 	

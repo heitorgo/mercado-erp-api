@@ -1,7 +1,7 @@
 package com.mercado.domain.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +26,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mercado.core.validation.Groups;
 
 import lombok.Data;
@@ -54,14 +55,15 @@ public class Venda {
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
-	private LocalDateTime dataCadastro;
+	private OffsetDateTime dataCadastro;
 	
 	@PastOrPresent
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
-	private LocalDateTime dataAtualizacao;
+	private OffsetDateTime dataAtualizacao;
 	
+	@JsonIgnoreProperties(value= {"nome","saldo","loja"})
 	@ConvertGroup(from = Default.class, to = Groups.CaixaId.class)
 	@Valid
 	@NotNull
@@ -69,11 +71,10 @@ public class Venda {
 	@JoinColumn(nullable = false)
 	private Caixa caixa;
 	
+	@JsonIgnoreProperties(value= {"nome","cargo"})
 	@ConvertGroup(from = Default.class, to = Groups.FuncionarioId.class)
 	@Valid
-	@NotNull
 	@ManyToOne
-	@JoinColumn(nullable = false)
 	private Funcionario funcionario;
 	
 	@JsonIgnore

@@ -14,11 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 
 import com.mercado.domain.model.Caixa;
+import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.model.Venda;
 import com.mercado.domain.service.CaixaService;
+import com.mercado.domain.service.CargoService;
 import com.mercado.domain.service.EmpresaService;
 import com.mercado.domain.service.FuncionarioService;
 import com.mercado.domain.service.LojaService;
@@ -51,6 +53,8 @@ public class TesteVendaIT {
 	private VendaService vendaService;
 	@Autowired
 	private CaixaService caixaService;
+	@Autowired
+	private CargoService cargoService;
 	@Autowired
 	private FuncionarioService funcionarioService;
 	@Autowired
@@ -95,8 +99,15 @@ public class TesteVendaIT {
 		caixa1.setLoja(loja1);
 		caixaService.salvar(caixa1);
 		
+		Cargo cargo1 = new Cargo();
+		cargo1.setTitulo("Gerente");
+		cargo1.setRemuneracao(new BigDecimal(7000));
+		cargo1.setLoja(loja1);
+		cargoService.salvar(cargo1);
+		
 		Funcionario funcionario1 = new Funcionario();
 		funcionario1.setNome("Pedro");
+		funcionario1.setCargo(cargo1);
 		funcionarioService.salvar(funcionario1);
 		
 		venda1 = new Venda();
@@ -204,7 +215,7 @@ public class TesteVendaIT {
 	}
 	
 	@Test
-	public void deveRetornarStatus400_QuandoCadastrarVendaSemFuncionario() {
+	public void deveRetornarStatus201_QuandoCadastrarVendaSemFuncionario() {
 		given()
 			.body(jsonVendaIncorretoSemFuncionario)
 			.accept(ContentType.JSON)
@@ -212,8 +223,7 @@ public class TesteVendaIT {
 		.when()
 			.post()
 		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
+			.statusCode(HttpStatus.CREATED.value());
 	}
 	
 	@Test
