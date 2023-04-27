@@ -15,15 +15,15 @@ import com.mercado.domain.repository.CaixaRepository;
 
 @Service
 public class CaixaService {
-	
+
 	@Autowired
 	private CaixaRepository caixaRepository;
-	
+
 	@Autowired
 	private LojaService lojaService;
-	
+
 	private final static String msg_caixa_em_uso = "Caixa de codigo identificador %d está em uso";
-	
+
 	@Transactional
 	public Caixa salvar(Caixa caixa) {
 		Long lojaId = caixa.getLoja().getId();
@@ -31,22 +31,20 @@ public class CaixaService {
 		caixa.setLoja(loja);
 		return caixaRepository.save(caixa);
 	}
-	
+
 	@Transactional
 	public void excluir(Long id) {
 		try {
 			caixaRepository.deleteById(id);
-		}catch(EmptyResultDataAccessException e) {
+		} catch (EmptyResultDataAccessException e) {
 			throw new CaixaNaoEncontradoException(id);
-		}
-		catch(DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format(msg_caixa_em_uso, id));
 		}
 	}
-	
+
 	public Caixa buscarOuFalhar(Long id) {
-		return caixaRepository.findById(id).orElseThrow(() ->
-		new CaixaNaoEncontradoException(id));
+		return caixaRepository.findById(id).orElseThrow(() -> new CaixaNaoEncontradoException(id));
 	}
 
 }

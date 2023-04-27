@@ -7,10 +7,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ValidacaoException extends RuntimeException{
+public class ValidacaoException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private BindingResult bindingResult;
 
 }

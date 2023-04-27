@@ -34,46 +34,46 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Caixa {
-	
+
 	@NotNull(groups = Groups.CaixaId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String nome;
-	
+
 	@PositiveOrZero
 	@NotNull
 	@Column(nullable = false)
 	private BigDecimal saldo;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataCadastro;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
-	
+
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo=true;
-	
-	@JsonIgnoreProperties(value= {"nome", "empresa"})
+	private boolean ativo = true;
+
+	@JsonIgnoreProperties(value = { "nome", "empresa" })
 	@ConvertGroup(from = Default.class, to = Groups.LojaId.class)
 	@Valid
 	@NotNull
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Loja loja;
-	
+
 	@OneToMany(mappedBy = "caixa")
 	@JsonIgnore
 	private List<Venda> vendas = new ArrayList<>();

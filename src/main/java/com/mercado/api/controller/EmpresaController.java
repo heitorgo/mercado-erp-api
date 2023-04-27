@@ -18,54 +18,64 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.domain.exception.NegocioException;
+import com.mercado.domain.exception.UsuarioNaoEncontradoException;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.repository.EmpresaRepository;
 import com.mercado.domain.service.EmpresaService;
 
 @RequestMapping("/empresas")
 @RestController
-public class EmpresaController{
-	
+public class EmpresaController {
+
 	@Autowired
 	private EmpresaRepository empresaRepository;
-	
+
 	@Autowired
 	private EmpresaService empresaService;
-	
+
 	@GetMapping
-	public List<Empresa> listar(){
+	public List<Empresa> listar() {
 		return empresaRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Empresa buscar(@PathVariable Long id){
+	public Empresa buscar(@PathVariable Long id) {
 		return empresaService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome){
+	public ResponseEntity<?> listarPorNome(String nome) {
 		List<Empresa> empresas = empresaRepository.findAllByNomeContaining(nome);
-		if(empresas.isEmpty()) {
+		if (empresas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(empresas);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Empresa adicionar(@RequestBody @Valid Empresa empresa) {
-		return empresaService.salvar(empresa);
+		try {
+			return empresaService.salvar(empresa);
+		}catch(UsuarioNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public Empresa atualizar( @PathVariable Long id, @RequestBody @Valid Empresa empresa){
+	public Empresa atualizar(@PathVariable Long id, @RequestBody @Valid Empresa empresa) {
 		Empresa empresaAtual = empresaService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(empresa, empresaAtual, "id", "dataCadastro");
-		return empresaService.salvar(empresaAtual);
+		try {
+			return empresaService.salvar(empresaAtual);
+		}catch(UsuarioNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
 	}
-	
+
 	@DeleteMapping("/{id}")
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		empresaService.excluir(id);
 	}
 

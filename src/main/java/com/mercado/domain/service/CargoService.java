@@ -15,15 +15,15 @@ import com.mercado.domain.repository.CargoRepository;
 
 @Service
 public class CargoService {
-	
+
 	@Autowired
 	private CargoRepository cargoRepository;
-	
+
 	@Autowired
 	private LojaService lojaService;
-	
-	private static final String msg_cargo_em_uso="Cargo de codigo identificador %d está em uso";
-	
+
+	private static final String msg_cargo_em_uso = "Cargo de codigo identificador %d está em uso";
+
 	@Transactional
 	public Cargo salvar(Cargo cargo) {
 		Long lojaId = cargo.getLoja().getId();
@@ -31,21 +31,20 @@ public class CargoService {
 		cargo.setLoja(loja);
 		return cargoRepository.save(cargo);
 	}
-	
+
 	@Transactional
 	public void excluir(Long id) {
 		try {
 			cargoRepository.deleteById(id);
-		}catch(EmptyResultDataAccessException e) {
+		} catch (EmptyResultDataAccessException e) {
 			throw new CargoNaoEncontradoException(id);
-		}catch(DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format(msg_cargo_em_uso, id));
 		}
 	}
-	
+
 	public Cargo buscarOuFalhar(Long id) {
-		return cargoRepository.findById(id).orElseThrow(() ->
-		new CargoNaoEncontradoException(id));
+		return cargoRepository.findById(id).orElseThrow(() -> new CargoNaoEncontradoException(id));
 	}
 
 }

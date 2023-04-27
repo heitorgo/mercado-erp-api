@@ -26,58 +26,58 @@ import com.mercado.domain.service.CargoService;
 
 @RequestMapping("/cargos")
 @RestController
-public class CargoController{
-	
+public class CargoController {
+
 	@Autowired
 	private CargoRepository cargoRepository;
-	
+
 	@Autowired
 	private CargoService cargoService;
-	
+
 	@GetMapping
-	public List<Cargo> listar(){
+	public List<Cargo> listar() {
 		return cargoRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Cargo buscar(@PathVariable Long id){
+	public Cargo buscar(@PathVariable Long id) {
 		return cargoService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/titulo")
-	public ResponseEntity<?> listarPorTitulo(String titulo){
+	public ResponseEntity<?> listarPorTitulo(String titulo) {
 		List<Cargo> cargos = cargoRepository.findAllByTituloContaining(titulo);
-		if(cargos.isEmpty()) {
+		if (cargos.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(cargos);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Cargo adicionar(@RequestBody @Valid Cargo cargo) {
 		try {
 			return cargoService.salvar(cargo);
-		}catch(LojaNaoEncontradaException e) {
+		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
-		
+
 	}
-	
+
 	@PutMapping("/{id}")
-	public Cargo atualizar( @PathVariable Long id, @RequestBody @Valid Cargo cargo){
+	public Cargo atualizar(@PathVariable Long id, @RequestBody @Valid Cargo cargo) {
 		Cargo cargoAtual = cargoService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(cargo, cargoAtual, "id", "dataCadastro");
 		try {
 			return cargoService.salvar(cargoAtual);
-		}catch(LojaNaoEncontradaException e) {
+		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		cargoService.excluir(id);
 	}
 

@@ -16,9 +16,11 @@ import org.springframework.test.context.TestPropertySource;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Loja;
+import com.mercado.domain.model.Usuario;
 import com.mercado.domain.service.CargoService;
 import com.mercado.domain.service.EmpresaService;
 import com.mercado.domain.service.LojaService;
+import com.mercado.domain.service.UsuarioService;
 import com.mercado.util.DatabaseCleaner;
 import com.mercado.util.ResourceUtils;
 
@@ -38,9 +40,9 @@ public class TesteCargoIT {
 	private String jsonCargoIncorretoRemuneracao;
 	private String jsonCargoIncorretoSemLoja;
 	private String jsonCargoIncorretoLojaInexistente;
-	private static final Long idCargoInexistente=100L;
-	private static final String DADOS_INVALIDOS_PROBLEM_TYPE="Dados inválidos";
-	private static final String VIOLACAO_NEGOCIO_PROBLEM_TYPE="Violação de regra de negócio";
+	private static final Long idCargoInexistente = 100L;
+	private static final String DADOS_INVALIDOS_PROBLEM_TYPE = "Dados inválidos";
+	private static final String VIOLACAO_NEGOCIO_PROBLEM_TYPE = "Violação de regra de negócio";
 	@Autowired
 	private CargoService cargoService;
 	@Autowired
@@ -48,150 +50,110 @@ public class TesteCargoIT {
 	@Autowired
 	private EmpresaService empresaService;
 	@Autowired
+	private UsuarioService usuarioService;
+	@Autowired
 	private DatabaseCleaner databaseCleaner;
-	
+
 	@BeforeEach
 	public void SetUp() {
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 		RestAssured.port = port;
 		RestAssured.basePath = "/cargos";
-		
+
 		databaseCleaner.clearTables();
 		prepararDados();
 		jsonCargoCorreto = ResourceUtils.getContentFromResource("/json/correto/cargo-correto.json");
-		jsonCargoIncorretoSemTitulo = ResourceUtils.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-titulo.json");
-		jsonCargoIncorretoSemRemuneracao = ResourceUtils.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-remuneracao.json");
-		jsonCargoIncorretoRemuneracao = ResourceUtils.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-remuneracao.json");
-		jsonCargoIncorretoSemLoja = ResourceUtils.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-loja.json");
-		jsonCargoIncorretoLojaInexistente = ResourceUtils.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-loja-inexistente.json");
+		jsonCargoIncorretoSemTitulo = ResourceUtils
+				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-titulo.json");
+		jsonCargoIncorretoSemRemuneracao = ResourceUtils
+				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-remuneracao.json");
+		jsonCargoIncorretoRemuneracao = ResourceUtils
+				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-remuneracao.json");
+		jsonCargoIncorretoSemLoja = ResourceUtils
+				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-loja.json");
+		jsonCargoIncorretoLojaInexistente = ResourceUtils
+				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-loja-inexistente.json");
 	}
-	
+
 	private void prepararDados() {
+		Usuario usuario = new Usuario();
+		usuario.setNome("José Teixeira");
+		usuario.setEmail("teixeiraze@hotmail.com");
+		usuario.setSenha("Teixeira&2020*03");
+		usuarioService.salvar(usuario);
+		
 		Empresa empresaAutoPecas = new Empresa();
 		empresaAutoPecas.setNome("Auto Peças Itu");
 		empresaAutoPecas.setRazaoSocial("Auto Peças Itu LTDA");
+		empresaAutoPecas.setUsuario(usuario);
 		empresaService.salvar(empresaAutoPecas);
-		
+
 		Loja loja1 = new Loja();
 		loja1.setNome("Loja1");
 		loja1.setEmpresa(empresaAutoPecas);
 		lojaService.salvar(loja1);
-		
+
 		cargoGerente = new Cargo();
 		cargoGerente.setTitulo("Gerente");
 		cargoGerente.setRemuneracao(new BigDecimal(5000));
 		cargoGerente.setLoja(loja1);
 		cargoService.salvar(cargoGerente);
-		
+
 	}
-	
+
 	@Test
 	public void deveRetornarStatus200_QuandoConsultarCargos() {
-		given()
-			.accept(ContentType.JSON)
-		.when()
-			.get()
-		.then()
-			.statusCode(HttpStatus.OK.value());
+		given().accept(ContentType.JSON).when().get().then().statusCode(HttpStatus.OK.value());
 	}
-	
+
 	@Test
 	public void deveRetornarStatus200_QuandoConsultarCargoExistente() {
-		given()
-			.accept(ContentType.JSON)
-			.pathParam("id", cargoGerente.getId())
-		.when()
-			.get("/{id}")
-		.then()
-			.statusCode(HttpStatus.OK.value());
+		given().accept(ContentType.JSON).pathParam("id", cargoGerente.getId()).when().get("/{id}").then()
+				.statusCode(HttpStatus.OK.value());
 	}
-	
+
 	@Test
 	public void deveRetornarStatus404_QuandoConsultarCargoInexistente() {
-		given()
-			.accept(ContentType.JSON)
-			.pathParam("id", idCargoInexistente)
-		.when()
-			.get("/{id}")
-		.then()
-			.statusCode(HttpStatus.NOT_FOUND.value());
+		given().accept(ContentType.JSON).pathParam("id", idCargoInexistente).when().get("/{id}").then()
+				.statusCode(HttpStatus.NOT_FOUND.value());
 	}
-	
+
 	@Test
 	public void deveRetornarStatus201_QuandoCadastrarCargoCorreto() {
-		given()
-			.body(jsonCargoCorreto)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.CREATED.value());
+		given().body(jsonCargoCorreto).accept(ContentType.JSON).contentType(ContentType.JSON).when().post().then()
+				.statusCode(HttpStatus.CREATED.value());
 	}
-	
+
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCargoSemTitulo() {
-		given()
-			.body(jsonCargoIncorretoSemTitulo)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
+		given().body(jsonCargoIncorretoSemTitulo).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
+				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
-	
+
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCargoSemRemuneracao() {
-		given()
-			.body(jsonCargoIncorretoSemRemuneracao)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
+		given().body(jsonCargoIncorretoSemRemuneracao).accept(ContentType.JSON).contentType(ContentType.JSON).when()
+				.post().then().statusCode(HttpStatus.BAD_REQUEST.value())
+				.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
-	
+
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCargoRemuneracaoincorreta() {
-		given()
-			.body(jsonCargoIncorretoRemuneracao)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
+		given().body(jsonCargoIncorretoRemuneracao).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
+				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
-	
+
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCargoSemLoja() {
-		given()
-			.body(jsonCargoIncorretoSemLoja)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
+		given().body(jsonCargoIncorretoSemLoja).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
+				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
-	
+
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCargoLojaInexistente() {
-		given()
-			.body(jsonCargoIncorretoLojaInexistente)
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-		.when()
-			.post()
-		.then()
-			.statusCode(HttpStatus.BAD_REQUEST.value())
-			.body("title", equalTo(VIOLACAO_NEGOCIO_PROBLEM_TYPE));
+		given().body(jsonCargoIncorretoLojaInexistente).accept(ContentType.JSON).contentType(ContentType.JSON).when()
+				.post().then().statusCode(HttpStatus.BAD_REQUEST.value())
+				.body("title", equalTo(VIOLACAO_NEGOCIO_PROBLEM_TYPE));
 	}
 
 }

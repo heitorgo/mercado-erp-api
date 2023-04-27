@@ -1,4 +1,7 @@
 {
     "nome": "Supermercado Leve",
-    "razaoSocial": null
+    "razaoSocial": null,
+    "usuario":{
+		"id": 1
+	}
 }

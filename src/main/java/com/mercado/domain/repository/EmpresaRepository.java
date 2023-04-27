@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mercado.domain.model.Empresa;
 
-public interface EmpresaRepository extends JpaRepository<Empresa, Long>{
-	
+public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
+
 	List<Empresa> findAllByNomeContaining(String nome);
 }

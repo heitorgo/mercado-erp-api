@@ -36,52 +36,55 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Venda {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-	
+
 	@NotNull
 	@PositiveOrZero
 	@Column(nullable = false)
 	private BigDecimal valor;
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String descricao;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataCadastro;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
-	
-	@JsonIgnoreProperties(value= {"nome","saldo","loja"})
+
+	@JsonIgnoreProperties(value = { "nome", "saldo", "loja" })
 	@ConvertGroup(from = Default.class, to = Groups.CaixaId.class)
 	@Valid
 	@NotNull
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Caixa caixa;
-	
-	@JsonIgnoreProperties(value= {"nome","cargo"})
+
+	@JsonIgnoreProperties(value = { "nome", "cargo" })
 	@ConvertGroup(from = Default.class, to = Groups.FuncionarioId.class)
 	@Valid
 	@ManyToOne
 	private Funcionario funcionario;
+
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "venda_forma_pagamento", joinColumns = @JoinColumn(name = "venda_id"), inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
+	private List<FormaPagamento> formasPagamento = new ArrayList<>();
 	
 	@JsonIgnore
 	@ManyToMany
-	@JoinTable(name ="venda_forma_pagamento",
-			joinColumns = @JoinColumn(name = "venda_id"),
-			inverseJoinColumns = @JoinColumn(name="forma_pagamento_id"))
-	private List<FormaPagamento> formasPagamento = new ArrayList<>();
+	@JoinTable(name = "venda_produto", joinColumns = @JoinColumn(name = "venda_id"), inverseJoinColumns = @JoinColumn(name = "produto_id"))
+	private List<Produto> produtos = new ArrayList<>();
 
 }

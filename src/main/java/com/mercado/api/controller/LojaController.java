@@ -27,57 +27,57 @@ import com.mercado.domain.service.LojaService;
 @RequestMapping("/lojas")
 @RestController
 public class LojaController {
-	
+
 	@Autowired
 	private LojaRepository lojaRepository;
-	
+
 	@Autowired
 	private LojaService lojaService;
-	
+
 	@GetMapping
 	public List<Loja> listar() {
-		return lojaRepository.findAll(); 
+		return lojaRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Loja buscar(@PathVariable Long id){
+	public Loja buscar(@PathVariable Long id) {
 		return lojaService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome){
+	public ResponseEntity<?> listarPorNome(String nome) {
 		List<Loja> lojas = lojaRepository.findAllByNomeContaining(nome);
-		if(lojas.isEmpty()) {
+		if (lojas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(lojas);
-		
+
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Loja adicionar(@RequestBody @Valid Loja loja){
+	public Loja adicionar(@RequestBody @Valid Loja loja) {
 		try {
 			return lojaService.salvar(loja);
-		}catch(EmpresaNaoEncontradaException e) {
+		} catch (EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public Loja atualizar( @PathVariable Long id, @RequestBody @Valid Loja loja){
+	public Loja atualizar(@PathVariable Long id, @RequestBody @Valid Loja loja) {
 		Loja lojaAtual = lojaService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(loja, lojaAtual, "id", "dataCadastro");
 		try {
 			return lojaService.salvar(lojaAtual);
-		}catch(EmpresaNaoEncontradaException e) {
+		} catch (EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		lojaService.excluir(id);
 	}
 

@@ -27,57 +27,57 @@ import com.mercado.domain.service.CaixaService;
 @RequestMapping("/caixas")
 @RestController
 public class CaixaController {
-	
+
 	@Autowired
 	private CaixaRepository caixaRepository;
-	
+
 	@Autowired
 	private CaixaService caixaService;
-	
+
 	@GetMapping
 	public List<Caixa> listar() {
-		return caixaRepository.findAll(); 
+		return caixaRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Caixa buscar(@PathVariable Long id){
+	public Caixa buscar(@PathVariable Long id) {
 		return caixaService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome){
+	public ResponseEntity<?> listarPorNome(String nome) {
 		List<Caixa> caixas = caixaRepository.findAllByNomeContaining(nome);
-		if(caixas.isEmpty()) {
+		if (caixas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(caixas);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Caixa adicionar(@RequestBody @Valid Caixa caixa){
+	public Caixa adicionar(@RequestBody @Valid Caixa caixa) {
 		try {
 			return caixaService.salvar(caixa);
-		}catch(LojaNaoEncontradaException e) {
+		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public Caixa atualizar( @PathVariable Long id, @RequestBody @Valid Caixa caixa){
+	public Caixa atualizar(@PathVariable Long id, @RequestBody @Valid Caixa caixa) {
 		Caixa caixaAtual = caixaService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(caixa, caixaAtual, "id", "dataCadastro");
 		try {
 			return caixaService.salvar(caixaAtual);
-		}catch(LojaNaoEncontradaException e) {
+		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
-		
+
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		caixaService.excluir(id);
 	}
 

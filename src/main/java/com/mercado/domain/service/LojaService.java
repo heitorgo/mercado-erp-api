@@ -14,15 +14,15 @@ import com.mercado.domain.repository.LojaRepository;
 
 @Service
 public class LojaService {
-	
+
 	@Autowired
 	private LojaRepository lojaRepository;
-	
+
 	@Autowired
 	private EmpresaService empresaService;
-	
+
 	private static final String msg_loja_em_uso = "Loja de codigo identificador %d está em uso";
-	
+
 	@Transactional
 	public Loja salvar(Loja loja) {
 		Long empresaId = loja.getEmpresa().getId();
@@ -30,21 +30,20 @@ public class LojaService {
 		loja.setEmpresa(empresa);
 		return lojaRepository.save(loja);
 	}
-	
+
 	@Transactional
 	public void excluir(Long id) {
 		try {
 			lojaRepository.deleteById(id);
-		}catch(LojaNaoEncontradaException e) {
+		} catch (LojaNaoEncontradaException e) {
 			throw new LojaNaoEncontradaException(id);
-		}catch(DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format(msg_loja_em_uso, id));
 		}
 	}
-	
+
 	public Loja buscarOuFalhar(Long id) {
-		return lojaRepository.findById(id).orElseThrow(() ->
-		new LojaNaoEncontradaException(id));
+		return lojaRepository.findById(id).orElseThrow(() -> new LojaNaoEncontradaException(id));
 	}
 
 }

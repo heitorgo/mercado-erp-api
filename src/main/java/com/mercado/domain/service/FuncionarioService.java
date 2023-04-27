@@ -15,14 +15,14 @@ import com.mercado.domain.repository.FuncionarioRepository;
 
 @Service
 public class FuncionarioService {
-	
+
 	@Autowired
 	private FuncionarioRepository funcionarioRepository;
 	@Autowired
 	private CargoService cargoService;
-	
-	private static final String msg_funcionario_em_uso="O funcionario de codigo identificador %d está em uso";
-	
+
+	private static final String msg_funcionario_em_uso = "O funcionario de codigo identificador %d está em uso";
+
 	@Transactional
 	public Funcionario salvar(Funcionario funcionario) {
 		Long cargoId = funcionario.getCargo().getId();
@@ -30,21 +30,20 @@ public class FuncionarioService {
 		funcionario.setCargo(cargo);
 		return funcionarioRepository.save(funcionario);
 	}
-	
+
 	@Transactional
 	public void excluir(Long id) {
 		try {
 			funcionarioRepository.deleteById(id);
-		}catch(EmptyResultDataAccessException e) {
+		} catch (EmptyResultDataAccessException e) {
 			throw new FuncionarioNaoEncontradoException(id);
-		}catch(DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format(msg_funcionario_em_uso, id));
 		}
 	}
-	
+
 	public Funcionario buscarOuFalhar(Long id) {
-		return funcionarioRepository.findById(id).orElseThrow(() ->
-		new FuncionarioNaoEncontradoException(id));
+		return funcionarioRepository.findById(id).orElseThrow(() -> new FuncionarioNaoEncontradoException(id));
 	}
 
 }

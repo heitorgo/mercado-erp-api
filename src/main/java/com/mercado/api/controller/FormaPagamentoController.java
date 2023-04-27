@@ -24,49 +24,49 @@ import com.mercado.domain.service.FormaPagamentoService;
 
 @RequestMapping("/formas-pagamento")
 @RestController
-public class FormaPagamentoController{
-	
+public class FormaPagamentoController {
+
 	@Autowired
 	private FormaPagamentoRepository formaPagamentoRepository;
-	
+
 	@Autowired
 	private FormaPagamentoService formaPagamentoService;
-	
+
 	@GetMapping
-	public List<FormaPagamento> listar(){
+	public List<FormaPagamento> listar() {
 		return formaPagamentoRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public FormaPagamento buscar(@PathVariable Long id){
+	public FormaPagamento buscar(@PathVariable Long id) {
 		return formaPagamentoService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/titulo")
-	public ResponseEntity<?> listarPorTitulo(String titulo){
+	public ResponseEntity<?> listarPorTitulo(String titulo) {
 		List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAllByTituloContaining(titulo);
-		if(formasPagamento.isEmpty()) {
+		if (formasPagamento.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(formasPagamento);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public FormaPagamento adicionar(@RequestBody @Valid FormaPagamento formaPagamento) {
 		return formaPagamentoService.salvar(formaPagamento);
 	}
-	
+
 	@PutMapping("/{id}")
-	public FormaPagamento atualizar( @PathVariable Long id, @RequestBody @Valid FormaPagamento formaPagamento){
+	public FormaPagamento atualizar(@PathVariable Long id, @RequestBody @Valid FormaPagamento formaPagamento) {
 		FormaPagamento formaPagamentoAtual = formaPagamentoService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(formaPagamento, formaPagamentoAtual, "id", "dataCadastro");
 		return formaPagamentoService.salvar(formaPagamentoAtual);
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		formaPagamentoService.excluir(id);
 	}
 

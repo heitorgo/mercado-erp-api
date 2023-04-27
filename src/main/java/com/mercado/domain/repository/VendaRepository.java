@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 import com.mercado.domain.model.Venda;
 
 @Repository
-public interface VendaRepository  extends JpaRepository<Venda, Long>, JpaSpecificationExecutor<Venda>{
-	
-	@Query("from Venda v join fetch v.caixa left join fetch v.formasPagamento")
+public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecificationExecutor<Venda> {
+
+	@Query("from Venda v join fetch v.caixa join fetch v.funcionario")
 	List<Venda> findAll();
-	
+
 	List<Venda> findAllByDescricaoContaining(String descricao);
 
 }

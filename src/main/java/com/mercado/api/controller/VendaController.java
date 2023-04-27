@@ -28,61 +28,61 @@ import com.mercado.domain.service.VendaService;
 @RequestMapping("/vendas")
 @RestController
 public class VendaController {
-	
+
 	@Autowired
 	private VendaRepository vendaRepository;
-	
+
 	@Autowired
 	private VendaService vendaService;
-	
+
 	@GetMapping
 	public List<Venda> listar() {
-		return vendaRepository.findAll(); 
+		return vendaRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Venda buscar(@PathVariable Long id){
+	public Venda buscar(@PathVariable Long id) {
 		return vendaService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/descricao")
-	public ResponseEntity<?> listarPorDescricao(String descricao){
+	public ResponseEntity<?> listarPorDescricao(String descricao) {
 		List<Venda> vendas = vendaRepository.findAllByDescricaoContaining(descricao);
-		if(vendas.isEmpty()) {
+		if (vendas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(vendas);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Venda adicionar(@RequestBody @Valid Venda venda){
+	public Venda adicionar(@RequestBody @Valid Venda venda) {
 		try {
 			return vendaService.salvar(venda);
-		}catch(CaixaNaoEncontradoException e) {
+		} catch (CaixaNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
-		}catch(FuncionarioNaoEncontradoException e) {
+		} catch (FuncionarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public Venda atualizar( @PathVariable Long id, @RequestBody @Valid Venda venda){
+	public Venda atualizar(@PathVariable Long id, @RequestBody @Valid Venda venda) {
 		Venda vendaAtual = vendaService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(venda, vendaAtual, "id", "dataCadastro");
 		try {
 			return vendaService.salvar(vendaAtual);
-		}catch(CaixaNaoEncontradoException e) {
+		} catch (CaixaNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
-		}catch(FuncionarioNaoEncontradoException e) {
+		} catch (FuncionarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
-		
+
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		vendaService.excluir(id);
 	}
 

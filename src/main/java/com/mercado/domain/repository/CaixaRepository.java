@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 import com.mercado.domain.model.Caixa;
 
 @Repository
-public interface CaixaRepository  extends JpaRepository<Caixa, Long>, JpaSpecificationExecutor<Caixa>{
-	
+public interface CaixaRepository extends JpaRepository<Caixa, Long>, JpaSpecificationExecutor<Caixa> {
+
 	@Query("from Caixa c join fetch c.loja")
 	List<Caixa> findAll();
-	
+
 	List<Caixa> findAllByNomeContaining(String nome);
 
 }

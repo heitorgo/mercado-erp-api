@@ -11,11 +11,11 @@ import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.model.Loja;
 
 @Repository
-public interface FuncionarioRepository  extends JpaRepository<Funcionario, Long>, JpaSpecificationExecutor<Loja>{
-	
+public interface FuncionarioRepository extends JpaRepository<Funcionario, Long>, JpaSpecificationExecutor<Loja> {
+
 	@Query("from Funcionario f join fetch f.cargo")
 	List<Funcionario> findAll();
-	
+
 	List<Funcionario> findAllByNomeContaining(String nome);
 
 }

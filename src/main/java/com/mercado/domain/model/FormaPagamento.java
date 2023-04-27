@@ -22,16 +22,16 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class FormaPagamento {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String titulo;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@CreationTimestamp
@@ -43,9 +43,9 @@ public class FormaPagamento {
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
-	
+
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo=true;
+	private boolean ativo = true;
 
 }

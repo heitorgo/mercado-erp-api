@@ -32,40 +32,40 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Funcionario {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String nome;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataCadastro;
-	
+
 	@PastOrPresent
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
-	
+
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo=true;
-	
-	@JsonIgnoreProperties(value={"titulo","remuneracao","loja"})
-	@ConvertGroup(from=Default.class, to=Groups.CargoId.class)
+	private boolean ativo = true;
+
+	@JsonIgnoreProperties(value = { "titulo", "remuneracao", "loja" })
+	@ConvertGroup(from = Default.class, to = Groups.CargoId.class)
 	@Valid
 	@NotNull
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Cargo cargo;
-	
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "funcionario")
 	private List<Venda> vendas = new ArrayList<>();

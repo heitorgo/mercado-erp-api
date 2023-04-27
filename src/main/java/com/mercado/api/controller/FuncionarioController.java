@@ -27,55 +27,55 @@ import com.mercado.domain.service.FuncionarioService;
 @RequestMapping("/funcionarios")
 @RestController
 public class FuncionarioController {
-	
+
 	@Autowired
 	private FuncionarioRepository funcionarioRepository;
-	
+
 	@Autowired
 	private FuncionarioService funcionarioService;
-	
+
 	@GetMapping
-	public List<Funcionario> listar(){
+	public List<Funcionario> listar() {
 		return funcionarioRepository.findAll();
 	}
-	
+
 	@GetMapping("/{id}")
-	public Funcionario buscar(@PathVariable Long id){
+	public Funcionario buscar(@PathVariable Long id) {
 		return funcionarioService.buscarOuFalhar(id);
 	}
-	
+
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome){
+	public ResponseEntity<?> listarPorNome(String nome) {
 		List<Funcionario> funcionarios = funcionarioRepository.findAllByNomeContaining(nome);
-		if(funcionarios.isEmpty()) {
+		if (funcionarios.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(funcionarios);
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Funcionario adicionar(@RequestBody @Valid Funcionario funcionario){
+	public Funcionario adicionar(@RequestBody @Valid Funcionario funcionario) {
 		try {
 			return funcionarioService.salvar(funcionario);
-		}catch(CargoNaoEncontradoException e) {
+		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public Funcionario atualizar(@PathVariable Long id, @RequestBody @Valid Funcionario funcionario){
+	public Funcionario atualizar(@PathVariable Long id, @RequestBody @Valid Funcionario funcionario) {
 		Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
 		BeanUtils.copyProperties(funcionario, funcionarioAtual, "id", "dataCadastro");
 		try {
 			return funcionarioService.salvar(funcionarioAtual);
-		}catch(CargoNaoEncontradoException e) {
+		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
-	
+
 	@DeleteMapping("/{id}")
-	public void remover(@PathVariable Long id){
+	public void remover(@PathVariable Long id) {
 		funcionarioService.excluir(id);
 	}
 

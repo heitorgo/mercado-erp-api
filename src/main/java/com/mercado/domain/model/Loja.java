@@ -35,51 +35,55 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Loja {
-	
-	@NotNull(groups=Groups.LojaId.class)
+
+	@NotNull(groups = Groups.LojaId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-	
+
 	@NotBlank
 	@Column(nullable = false)
 	private String nome;
-	
+
 	@JsonIgnore
 	@PositiveOrZero
 	private BigDecimal saldo = new BigDecimal(0);
-	
+
 	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	@PastOrPresent
 	private OffsetDateTime dataCadastro;
-	
+
 	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	@PastOrPresent
 	private OffsetDateTime dataAtualizacao;
-	
+
 	@JsonIgnore
 	@Column(nullable = false)
-	private boolean ativo=true;
-	
-	@JsonIgnoreProperties(value = {"nome", "razaoSocial"})
-	@ConvertGroup(from=Default.class, to=Groups.EmpresaId.class)
+	private boolean ativo = true;
+
+	@JsonIgnoreProperties(value = { "nome", "razaoSocial" })
+	@ConvertGroup(from = Default.class, to = Groups.EmpresaId.class)
 	@NotNull
 	@Valid
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Empresa empresa;
-	
+
 	@OneToMany(mappedBy = "loja")
 	@JsonIgnore
 	private List<Cargo> cargos = new ArrayList<>();
-	
+
 	@OneToMany(mappedBy = "loja")
 	@JsonIgnore
 	private List<Caixa> caixas = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "loja")
+	@JsonIgnore
+	private List<Produto> produtos = new ArrayList<>();
 
 }
