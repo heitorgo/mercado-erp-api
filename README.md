@@ -1,6 +1,6 @@
-# Mercado API
+# Mercado ERP API
 
-## API para CRUD usando Java 15, Maven, Spring Boot, JPA, Hibernate, Flyway, MySQL, Lombok e JUnit 5
+## API REST que simula um sistema ERP disponibilizando CRUD de várias classes. Feita utilizando Spring Framework, JPA Hibernate, versionamento de banco de dados com Flyway, banco MySQL, e testes com JUnit 5.
 
 <p align="center">
  <a href="#pre-requisitos">Pré-requisitos</a> •
@@ -46,7 +46,7 @@ $ java -jar target\mercado-api-0.0.1-SNAPSHOT.jar
 Ferramentas usadas na construção do projeto:
 
 - [Java](https://www.oracle.com/br/java/)
-- [Spring Boot](https://spring.io/)
+- [Spring Framework](https://spring.io/)
 
 ## Autor
 
