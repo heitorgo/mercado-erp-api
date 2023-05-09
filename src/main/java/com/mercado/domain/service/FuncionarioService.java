@@ -35,6 +35,7 @@ public class FuncionarioService {
 	public void excluir(Long id) {
 		try {
 			funcionarioRepository.deleteById(id);
+			funcionarioRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new FuncionarioNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {

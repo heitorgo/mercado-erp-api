@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.funcionario.FuncionarioInputDisassembler;
+import com.mercado.api.assembler.funcionario.FuncionarioModelAssembler;
+import com.mercado.api.model.FuncionarioModel;
+import com.mercado.api.model.input.funcionario.FuncionarioAlteracaoInput;
+import com.mercado.api.model.input.funcionario.FuncionarioInput;
 import com.mercado.domain.exception.CargoNaoEncontradoException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Funcionario;
@@ -33,15 +37,22 @@ public class FuncionarioController {
 
 	@Autowired
 	private FuncionarioService funcionarioService;
+	
+	@Autowired
+	private FuncionarioModelAssembler funcionarioModelAssembler;
+	
+	@Autowired
+	private FuncionarioInputDisassembler funcionarioInputDisassembler;
 
 	@GetMapping
-	public List<Funcionario> listar() {
-		return funcionarioRepository.findAll();
+	public List<FuncionarioModel> listar() {
+		List<Funcionario> funcionarios = funcionarioRepository.findAll();
+		return funcionarioModelAssembler.toCollectionModel(funcionarios);
 	}
 
 	@GetMapping("/{id}")
-	public Funcionario buscar(@PathVariable Long id) {
-		return funcionarioService.buscarOuFalhar(id);
+	public FuncionarioModel buscar(@PathVariable Long id) {
+		return funcionarioModelAssembler.toModel(funcionarioService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/nome")
@@ -50,25 +61,26 @@ public class FuncionarioController {
 		if (funcionarios.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(funcionarios);
+		return ResponseEntity.ok(funcionarioModelAssembler.toCollectionModel(funcionarios));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Funcionario adicionar(@RequestBody @Valid Funcionario funcionario) {
+	public FuncionarioModel adicionar(@RequestBody @Valid FuncionarioInput funcionarioInput) {
 		try {
-			return funcionarioService.salvar(funcionario);
+			Funcionario funcionario = funcionarioInputDisassembler.toDomainModel(funcionarioInput);
+			return funcionarioModelAssembler.toModel(funcionarioService.salvar(funcionario));
 		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public Funcionario atualizar(@PathVariable Long id, @RequestBody @Valid Funcionario funcionario) {
-		Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(funcionario, funcionarioAtual, "id", "dataCadastro");
+	public FuncionarioModel atualizar(@PathVariable Long id, @RequestBody @Valid FuncionarioAlteracaoInput funcionarioAlteracaoInput) {
 		try {
-			return funcionarioService.salvar(funcionarioAtual);
+			Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
+			funcionarioInputDisassembler.copyToDomainObject(funcionarioAlteracaoInput, funcionarioAtual);
+			return funcionarioModelAssembler.toModel(funcionarioService.salvar(funcionarioAtual));
 		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}

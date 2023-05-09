@@ -35,6 +35,7 @@ public class EmpresaService {
 	public void excluir(Long id) {
 		try {
 			empresaRepository.deleteById(id);
+			empresaRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new EmpresaNaoEncontradaException(id);
 		} catch (DataIntegrityViolationException e) {

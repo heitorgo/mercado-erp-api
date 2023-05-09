@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.caixa.CaixaInputDisassembler;
+import com.mercado.api.assembler.caixa.CaixaModelAssembler;
+import com.mercado.api.model.CaixaModel;
+import com.mercado.api.model.input.caixa.CaixaAlteracaoInput;
+import com.mercado.api.model.input.caixa.CaixaInput;
 import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Caixa;
@@ -33,15 +37,22 @@ public class CaixaController {
 
 	@Autowired
 	private CaixaService caixaService;
+	
+	@Autowired
+	private CaixaModelAssembler caixaModelAssembler;
+	
+	@Autowired
+	private CaixaInputDisassembler caixaInputDisassembler;
 
 	@GetMapping
-	public List<Caixa> listar() {
-		return caixaRepository.findAll();
+	public List<CaixaModel> listar() {
+		List<Caixa> caixas = caixaRepository.findAll();
+		return caixaModelAssembler.toCollectionModel(caixas);
 	}
 
 	@GetMapping("/{id}")
-	public Caixa buscar(@PathVariable Long id) {
-		return caixaService.buscarOuFalhar(id);
+	public CaixaModel buscar(@PathVariable Long id) {
+		return caixaModelAssembler.toModel(caixaService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/nome")
@@ -50,25 +61,26 @@ public class CaixaController {
 		if (caixas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(caixas);
+		return ResponseEntity.ok(caixaModelAssembler.toCollectionModel(caixas));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Caixa adicionar(@RequestBody @Valid Caixa caixa) {
+	public CaixaModel adicionar(@RequestBody @Valid CaixaInput caixaInput) {
 		try {
-			return caixaService.salvar(caixa);
+			Caixa caixa = caixaInputDisassembler.toDomainModel(caixaInput);
+			return caixaModelAssembler.toModel(caixaService.salvar(caixa));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public Caixa atualizar(@PathVariable Long id, @RequestBody @Valid Caixa caixa) {
-		Caixa caixaAtual = caixaService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(caixa, caixaAtual, "id", "dataCadastro");
+	public CaixaModel atualizar(@PathVariable Long id, @RequestBody @Valid CaixaAlteracaoInput caixaAlteracaoInput) {
 		try {
-			return caixaService.salvar(caixaAtual);
+			Caixa caixaAtual = caixaService.buscarOuFalhar(id);
+			caixaInputDisassembler.copyToDomainObject(caixaAlteracaoInput, caixaAtual);
+			return caixaModelAssembler.toModel(caixaService.salvar(caixaAtual));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}

@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.formaPagamento.FormaPagamentoInputDisassember;
+import com.mercado.api.assembler.formaPagamento.FormaPagamentoModelAssembler;
+import com.mercado.api.model.FormaPagamentoModel;
+import com.mercado.api.model.input.formaPagamento.FormaPagamentoAlteracaoInput;
+import com.mercado.api.model.input.formaPagamento.FormaPagamentoInput;
 import com.mercado.domain.model.FormaPagamento;
 import com.mercado.domain.repository.FormaPagamentoRepository;
 import com.mercado.domain.service.FormaPagamentoService;
@@ -31,15 +35,22 @@ public class FormaPagamentoController {
 
 	@Autowired
 	private FormaPagamentoService formaPagamentoService;
+	
+	@Autowired
+	private FormaPagamentoModelAssembler formaPagamentoModelAssembler;
+	
+	@Autowired
+	private FormaPagamentoInputDisassember formaPagamentoInputDisassembler;
 
 	@GetMapping
-	public List<FormaPagamento> listar() {
-		return formaPagamentoRepository.findAll();
+	public List<FormaPagamentoModel> listar() {
+		List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAll();
+		return formaPagamentoModelAssembler.toCollectionModel(formasPagamento);
 	}
 
 	@GetMapping("/{id}")
-	public FormaPagamento buscar(@PathVariable Long id) {
-		return formaPagamentoService.buscarOuFalhar(id);
+	public FormaPagamentoModel buscar(@PathVariable Long id) {
+		return formaPagamentoModelAssembler.toModel(formaPagamentoService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/titulo")
@@ -48,20 +59,21 @@ public class FormaPagamentoController {
 		if (formasPagamento.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(formasPagamento);
+		return ResponseEntity.ok(formaPagamentoModelAssembler.toCollectionModel(formasPagamento));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public FormaPagamento adicionar(@RequestBody @Valid FormaPagamento formaPagamento) {
-		return formaPagamentoService.salvar(formaPagamento);
+	public FormaPagamentoModel adicionar(@RequestBody @Valid FormaPagamentoInput formaPagamentoInput) {
+		FormaPagamento formaPagamento = formaPagamentoInputDisassembler.toDomainModel(formaPagamentoInput);
+		return formaPagamentoModelAssembler.toModel(formaPagamentoService.salvar(formaPagamento));
 	}
 
 	@PutMapping("/{id}")
-	public FormaPagamento atualizar(@PathVariable Long id, @RequestBody @Valid FormaPagamento formaPagamento) {
+	public FormaPagamentoModel atualizar(@PathVariable Long id, @RequestBody @Valid FormaPagamentoAlteracaoInput formaPagamentoAlteracaoInput) {
 		FormaPagamento formaPagamentoAtual = formaPagamentoService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(formaPagamento, formaPagamentoAtual, "id", "dataCadastro");
-		return formaPagamentoService.salvar(formaPagamentoAtual);
+		formaPagamentoInputDisassembler.copyToDomainObject(formaPagamentoAlteracaoInput, formaPagamentoAtual);
+		return formaPagamentoModelAssembler.toModel(formaPagamentoService.salvar(formaPagamentoAtual));
 	}
 
 	@DeleteMapping("/{id}")

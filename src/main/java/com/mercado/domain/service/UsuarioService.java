@@ -28,6 +28,7 @@ public class UsuarioService {
 	public void excluir(Long id) {
 		try {
 			usuarioRepository.deleteById(id);
+			usuarioRepository.flush();
 		}catch(EmptyResultDataAccessException e) {
 			throw new UsuarioNaoEncontradoException(id);
 		}catch(DataIntegrityViolationException e) {

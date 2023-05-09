@@ -36,6 +36,7 @@ public class ProdutoService {
 	public void excluir(Long id) {
 		try {
 			produtoRepository.deleteById(id);
+			produtoRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new ProdutoNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {

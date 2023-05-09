@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.empresa.EmpresaInputDisassember;
+import com.mercado.api.assembler.empresa.EmpresaModelAssembler;
+import com.mercado.api.model.EmpresaModel;
+import com.mercado.api.model.input.empresa.EmpresaAlteracaoInput;
+import com.mercado.api.model.input.empresa.EmpresaInput;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.exception.UsuarioNaoEncontradoException;
 import com.mercado.domain.model.Empresa;
@@ -33,15 +37,22 @@ public class EmpresaController {
 
 	@Autowired
 	private EmpresaService empresaService;
+	
+	@Autowired
+	private EmpresaModelAssembler empresaModelAssembler;
+	
+	@Autowired
+	private EmpresaInputDisassember empresaInputDisassember;
 
 	@GetMapping
-	public List<Empresa> listar() {
-		return empresaRepository.findAll();
+	public List<EmpresaModel> listar() {
+		List<Empresa> empresas = empresaRepository.findAll();
+		return empresaModelAssembler.toCollectionModel(empresas);
 	}
 
 	@GetMapping("/{id}")
-	public Empresa buscar(@PathVariable Long id) {
-		return empresaService.buscarOuFalhar(id);
+	public EmpresaModel buscar(@PathVariable Long id) {
+		return empresaModelAssembler.toModel(empresaService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/nome")
@@ -50,25 +61,26 @@ public class EmpresaController {
 		if (empresas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(empresas);
+		return ResponseEntity.ok(empresaModelAssembler.toCollectionModel(empresas));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Empresa adicionar(@RequestBody @Valid Empresa empresa) {
+	public EmpresaModel adicionar(@RequestBody @Valid EmpresaInput empresaInput) {
 		try {
-			return empresaService.salvar(empresa);
+			Empresa empresa = empresaInputDisassember.toDomainModel(empresaInput);
+			return empresaModelAssembler.toModel(empresaService.salvar(empresa));
 		}catch(UsuarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public Empresa atualizar(@PathVariable Long id, @RequestBody @Valid Empresa empresa) {
-		Empresa empresaAtual = empresaService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(empresa, empresaAtual, "id", "dataCadastro");
+	public EmpresaModel atualizar(@PathVariable Long id, @RequestBody @Valid EmpresaAlteracaoInput empresaAlteracaoInput) {
 		try {
-			return empresaService.salvar(empresaAtual);
+			Empresa empresaAtual = empresaService.buscarOuFalhar(id);
+			empresaInputDisassember.copyToDomainObject(empresaAlteracaoInput, empresaAtual);
+			return empresaModelAssembler.toModel(empresaService.salvar(empresaAtual));
 		}catch(UsuarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}

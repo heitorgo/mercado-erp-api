@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.produto.ProdutoInputDisassembler;
+import com.mercado.api.assembler.produto.ProdutoModelAssembler;
+import com.mercado.api.model.ProdutoModel;
+import com.mercado.api.model.input.produto.ProdutoAlteracaoInput;
+import com.mercado.api.model.input.produto.ProdutoInput;
 import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Produto;
@@ -33,15 +37,22 @@ public class ProdutoController {
 
 	@Autowired
 	private ProdutoService produtoService;
+	
+	@Autowired
+	private ProdutoModelAssembler produtoModelAssembler;
+	
+	@Autowired
+	private ProdutoInputDisassembler produtoInputDisassembler;
 
 	@GetMapping
-	public List<Produto> listar() {
-		return produtoRepository.findAll();
+	public List<ProdutoModel> listar() {
+		List<Produto> produtos = produtoRepository.findAll();
+		return produtoModelAssembler.toCollectionModel(produtos);
 	}
 
 	@GetMapping("/{id}")
-	public Produto buscar(@PathVariable Long id) {
-		return produtoService.buscarOuFalhar(id);
+	public ProdutoModel buscar(@PathVariable Long id) {
+		return produtoModelAssembler.toModel(produtoService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/nome")
@@ -50,25 +61,26 @@ public class ProdutoController {
 		if (produtos.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(produtos);
+		return ResponseEntity.ok(produtoModelAssembler.toCollectionModel(produtos));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Produto adicionar(@RequestBody @Valid Produto produto) {
+	public ProdutoModel adicionar(@RequestBody @Valid ProdutoInput produtoInput) {
 		try {
-			return produtoService.salvar(produto);
+			Produto produto = produtoInputDisassembler.toDomainModel(produtoInput);
+			return produtoModelAssembler.toModel(produtoService.salvar(produto));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public Produto atualizar(@PathVariable Long id, @RequestBody @Valid Produto produto) {
-		Produto produtoAtual = produtoService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(produto, produtoAtual, "id", "dataCadastro");
+	public ProdutoModel atualizar(@PathVariable Long id, @RequestBody @Valid ProdutoAlteracaoInput produtoAlteracaoInput) {
 		try {
-			return produtoService.salvar(produtoAtual);
+			Produto produtoAtual = produtoService.buscarOuFalhar(id);
+			produtoInputDisassembler.copyToDomainObject(produtoAlteracaoInput, produtoAtual);
+			return produtoModelAssembler.toModel(produtoService.salvar(produtoAtual));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}

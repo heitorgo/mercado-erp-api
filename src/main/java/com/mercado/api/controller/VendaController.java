@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.venda.VendaInputDisassembler;
+import com.mercado.api.assembler.venda.VendaModelAssembler;
+import com.mercado.api.model.VendaModel;
+import com.mercado.api.model.input.venda.VendaInput;
 import com.mercado.domain.exception.CaixaNaoEncontradoException;
 import com.mercado.domain.exception.FuncionarioNaoEncontradoException;
 import com.mercado.domain.exception.NegocioException;
@@ -34,15 +37,22 @@ public class VendaController {
 
 	@Autowired
 	private VendaService vendaService;
+	
+	@Autowired
+	private VendaModelAssembler vendaModelAssembler;
+	
+	@Autowired
+	private VendaInputDisassembler vendaInputDisassembler;
 
 	@GetMapping
-	public List<Venda> listar() {
-		return vendaRepository.findAll();
+	public List<VendaModel> listar() {
+		List<Venda> vendas = vendaRepository.findAll();
+		return vendaModelAssembler.toCollectionModel(vendas);
 	}
 
 	@GetMapping("/{id}")
-	public Venda buscar(@PathVariable Long id) {
-		return vendaService.buscarOuFalhar(id);
+	public VendaModel buscar(@PathVariable Long id) {
+		return vendaModelAssembler.toModel(vendaService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/descricao")
@@ -51,14 +61,15 @@ public class VendaController {
 		if (vendas.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(vendas);
+		return ResponseEntity.ok(vendaModelAssembler.toCollectionModel(vendas));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Venda adicionar(@RequestBody @Valid Venda venda) {
+	public VendaModel adicionar(@RequestBody @Valid VendaInput vendaInput) {
 		try {
-			return vendaService.salvar(venda);
+			Venda venda = vendaInputDisassembler.toDomainModel(vendaInput);
+			return vendaModelAssembler.toModel(vendaService.salvar(venda));
 		} catch (CaixaNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		} catch (FuncionarioNaoEncontradoException e) {
@@ -67,11 +78,11 @@ public class VendaController {
 	}
 
 	@PutMapping("/{id}")
-	public Venda atualizar(@PathVariable Long id, @RequestBody @Valid Venda venda) {
-		Venda vendaAtual = vendaService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(venda, vendaAtual, "id", "dataCadastro");
+	public VendaModel atualizar(@PathVariable Long id, @RequestBody @Valid VendaInput vendaInput) {
 		try {
-			return vendaService.salvar(vendaAtual);
+			Venda vendaAtual = vendaService.buscarOuFalhar(id);
+			vendaInputDisassembler.copyToDomainObject(vendaInput, vendaAtual);
+			return vendaModelAssembler.toModel(vendaService.salvar(vendaAtual));
 		} catch (CaixaNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		} catch (FuncionarioNaoEncontradoException e) {

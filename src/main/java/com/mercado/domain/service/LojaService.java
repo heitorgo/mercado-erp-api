@@ -35,6 +35,7 @@ public class LojaService {
 	public void excluir(Long id) {
 		try {
 			lojaRepository.deleteById(id);
+			lojaRepository.flush();
 		} catch (LojaNaoEncontradaException e) {
 			throw new LojaNaoEncontradaException(id);
 		} catch (DataIntegrityViolationException e) {

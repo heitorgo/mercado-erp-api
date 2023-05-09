@@ -7,13 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PastOrPresent;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,23 +24,17 @@ public class FormaPagamento {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@NotBlank
 	@Column(nullable = false)
 	private String titulo;
 
-	@PastOrPresent
-	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataCadastro;
 
-	@PastOrPresent
-	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
 
-	@JsonIgnore
 	@Column(nullable = false)
 	private boolean ativo = true;
 

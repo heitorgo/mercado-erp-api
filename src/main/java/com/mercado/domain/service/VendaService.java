@@ -45,6 +45,7 @@ public class VendaService {
 	public void excluir(Long id) {
 		try {
 			vendaRepository.deleteById(id);
+			vendaRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new VendaNaoEncontradaException(id);
 		} catch (DataIntegrityViolationException e) {

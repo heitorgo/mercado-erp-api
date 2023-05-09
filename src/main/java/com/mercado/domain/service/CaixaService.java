@@ -36,6 +36,7 @@ public class CaixaService {
 	public void excluir(Long id) {
 		try {
 			caixaRepository.deleteById(id);
+			caixaRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new CaixaNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {

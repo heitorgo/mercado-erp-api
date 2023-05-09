@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mercado.api.assembler.cargo.CargoInputDisassembler;
+import com.mercado.api.assembler.cargo.CargoModelAssembler;
+import com.mercado.api.model.CargoModel;
+import com.mercado.api.model.input.cargo.CargoAlteracaoInput;
+import com.mercado.api.model.input.cargo.CargoInput;
 import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Cargo;
@@ -33,15 +37,22 @@ public class CargoController {
 
 	@Autowired
 	private CargoService cargoService;
+	
+	@Autowired
+	private CargoModelAssembler cargoModelAssembler;
+	
+	@Autowired
+	private CargoInputDisassembler cargoInputDisassembler;
 
 	@GetMapping
-	public List<Cargo> listar() {
-		return cargoRepository.findAll();
+	public List<CargoModel> listar() {
+		List<Cargo> cargos = cargoRepository.findAll();
+		return cargoModelAssembler.toCollectionModel(cargos);
 	}
 
 	@GetMapping("/{id}")
-	public Cargo buscar(@PathVariable Long id) {
-		return cargoService.buscarOuFalhar(id);
+	public CargoModel buscar(@PathVariable Long id) {
+		return cargoModelAssembler.toModel(cargoService.buscarOuFalhar(id));
 	}
 
 	@GetMapping("/titulo")
@@ -50,14 +61,15 @@ public class CargoController {
 		if (cargos.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(cargos);
+		return ResponseEntity.ok(cargoModelAssembler.toCollectionModel(cargos));
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cargo adicionar(@RequestBody @Valid Cargo cargo) {
+	public CargoModel adicionar(@RequestBody @Valid CargoInput cargoInput) {
 		try {
-			return cargoService.salvar(cargo);
+			Cargo cargo = cargoInputDisassembler.toDomainModel(cargoInput);
+			return cargoModelAssembler.toModel(cargoService.salvar(cargo));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
@@ -65,11 +77,11 @@ public class CargoController {
 	}
 
 	@PutMapping("/{id}")
-	public Cargo atualizar(@PathVariable Long id, @RequestBody @Valid Cargo cargo) {
-		Cargo cargoAtual = cargoService.buscarOuFalhar(id);
-		BeanUtils.copyProperties(cargo, cargoAtual, "id", "dataCadastro");
+	public CargoModel atualizar(@PathVariable Long id, @RequestBody @Valid CargoAlteracaoInput cargoAlteracaoInput) {
 		try {
-			return cargoService.salvar(cargoAtual);
+			Cargo cargoAtual = cargoService.buscarOuFalhar(id);
+			cargoInputDisassembler.copyToDomainObject(cargoAlteracaoInput, cargoAtual);
+			return cargoModelAssembler.toModel(cargoService.salvar(cargoAtual));
 		} catch (LojaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}

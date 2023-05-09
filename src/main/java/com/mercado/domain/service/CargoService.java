@@ -36,6 +36,7 @@ public class CargoService {
 	public void excluir(Long id) {
 		try {
 			cargoRepository.deleteById(id);
+			cargoRepository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new CargoNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {
