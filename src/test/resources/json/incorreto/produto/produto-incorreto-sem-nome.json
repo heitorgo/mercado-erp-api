@@ -2,8 +2,5 @@
     "nome": null,
     "descricao": "Peça para comercio",
     "quantidade": 1000,
-    "valor": 2.50,
-    "loja": {
-        "id": 1
-    }
+    "valor": 2.50
 }

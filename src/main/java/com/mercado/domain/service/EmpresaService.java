@@ -1,5 +1,8 @@
 package com.mercado.domain.service;
 
+import java.util.Optional;
+
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.mercado.domain.exception.EmpresaNaoEncontradaException;
 import com.mercado.domain.exception.EntidadeEmUsoException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Usuario;
 import com.mercado.domain.repository.EmpresaRepository;
@@ -18,16 +22,24 @@ public class EmpresaService {
 
 	@Autowired
 	private EmpresaRepository empresaRepository;
+	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private EntityManager manager;
 
 	private static final String msg_empresa_em_uso = "Empresa de codigo identificador %d está em uso";
+	private static final String msg_empresa_inativa = "Empresa de codigo identificador %d está inativa";
 
 	@Transactional
 	public Empresa salvar(Empresa empresa) {
-		Long usuarioId = empresa.getUsuario().getId();
-		Usuario usuario = usuarioService.buscarOuFalhar(usuarioId);
-		empresa.setUsuario(usuario);
+		manager.detach(empresa);
+		Optional<Empresa> empresaExistente = empresaRepository.findByRazaoSocial(empresa.getRazaoSocial());
+		if(empresaExistente.isPresent() && !empresaExistente.get().equals(empresa)) {
+			throw new NegocioException(
+					String.format("Já existe uma empresa cadastrada com o a razao social %s", empresa.getRazaoSocial()));
+		}
 		return empresaRepository.save(empresa);
 	}
 
@@ -45,6 +57,38 @@ public class EmpresaService {
 
 	public Empresa buscarOuFalhar(Long id) {
 		return empresaRepository.findById(id).orElseThrow(() -> new EmpresaNaoEncontradaException(id));
+	}
+	
+	public void verificarAtivo(Empresa empresa) {
+		if(!empresa.getAtivo()) {
+			throw new NegocioException(String.format(msg_empresa_inativa, empresa.getId()));
+		}
+	}
+	
+	@Transactional
+	public void ativar(Long empresaId) {
+		Empresa empresaAtual = buscarOuFalhar(empresaId);
+		empresaAtual.ativar();
+	}
+	
+	@Transactional
+	public void inativar(Long empresaId) {
+		Empresa empresaAtual = buscarOuFalhar(empresaId);
+		empresaAtual.inativar();
+	}
+	
+	@Transactional
+	public void associarResponsavel(Long empresaId, Long usuarioId) {
+		Empresa empresa = buscarOuFalhar(empresaId);
+		Usuario usuario = usuarioService.buscarOuFalhar(usuarioId);
+		empresa.associarResponsavel(usuario);
+	}
+	
+	@Transactional
+	public void desassociarResponsavel(Long empresaId, Long usuarioId) {
+		Empresa empresa = buscarOuFalhar(empresaId);
+		Usuario usuario = usuarioService.buscarOuFalhar(usuarioId);
+		empresa.desassociarResponsavel(usuario);
 	}
 
 }

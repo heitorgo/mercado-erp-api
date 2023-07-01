@@ -4,8 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.input.caixa.CaixaAlteracaoInput;
 import com.mercado.api.model.input.caixa.CaixaInput;
+import com.mercado.api.model.input.caixa.LojaCaixaInput;
 import com.mercado.domain.model.Caixa;
 import com.mercado.domain.model.Loja;
 
@@ -19,11 +19,19 @@ public class CaixaInputDisassembler {
 		return modelMapper.map(caixaInput, Caixa.class);
 	}
 	
-	public void copyToDomainObject(CaixaAlteracaoInput caixaAlteracaoInput, Caixa caixa) {
+	public Caixa toDomainModel(LojaCaixaInput lojaCaixaInput) {
+		return modelMapper.map(lojaCaixaInput, Caixa.class);
+	}
+	
+	public void copyToDomainObject(CaixaInput caixaInput, Caixa caixa) {
 		//para evitar erro de alteração de identificador de loja
 		caixa.setLoja(new Loja());
 		
-		modelMapper.map(caixaAlteracaoInput, caixa);
+		modelMapper.map(caixaInput, caixa);
+	}
+	
+	public void copyToDomainObject(LojaCaixaInput lojaCaixaInput, Caixa caixa) {
+		modelMapper.map(lojaCaixaInput, caixa);
 	}
 
 }

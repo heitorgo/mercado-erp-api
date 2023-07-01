@@ -36,6 +36,14 @@ public class FormaPagamento {
 	private OffsetDateTime dataAtualizacao;
 
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
 
 }

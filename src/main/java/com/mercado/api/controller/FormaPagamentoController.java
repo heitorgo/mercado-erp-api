@@ -6,7 +6,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercado.api.assembler.formaPagamento.FormaPagamentoInputDisassember;
 import com.mercado.api.assembler.formaPagamento.FormaPagamentoModelAssembler;
-import com.mercado.api.model.FormaPagamentoModel;
-import com.mercado.api.model.input.formaPagamento.FormaPagamentoAlteracaoInput;
+import com.mercado.api.model.formaPagamento.FormaPagamentoModel;
 import com.mercado.api.model.input.formaPagamento.FormaPagamentoInput;
+import com.mercado.domain.exception.FormaPagamentoNaoEncontradaException;
 import com.mercado.domain.model.FormaPagamento;
 import com.mercado.domain.repository.FormaPagamentoRepository;
 import com.mercado.domain.service.FormaPagamentoService;
@@ -54,32 +53,46 @@ public class FormaPagamentoController {
 	}
 
 	@GetMapping("/titulo")
-	public ResponseEntity<?> listarPorTitulo(String titulo) {
+	public List<FormaPagamentoModel> listarPorTitulo(String titulo) {
 		List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAllByTituloContaining(titulo);
 		if (formasPagamento.isEmpty()) {
-			return ResponseEntity.notFound().build();
+			throw new FormaPagamentoNaoEncontradaException(String.format("Nenhuma forma de pagamento contém o titulo %s", titulo));
 		}
-		return ResponseEntity.ok(formaPagamentoModelAssembler.toCollectionModel(formasPagamento));
+		return formaPagamentoModelAssembler.toCollectionModel(formasPagamento);
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public FormaPagamentoModel adicionar(@RequestBody @Valid FormaPagamentoInput formaPagamentoInput) {
 		FormaPagamento formaPagamento = formaPagamentoInputDisassembler.toDomainModel(formaPagamentoInput);
-		return formaPagamentoModelAssembler.toModel(formaPagamentoService.salvar(formaPagamento));
+		formaPagamento = formaPagamentoService.salvar(formaPagamento);
+		return formaPagamentoModelAssembler.toModel(formaPagamento);
 	}
 
 	@PutMapping("/{id}")
-	public FormaPagamentoModel atualizar(@PathVariable Long id, @RequestBody @Valid FormaPagamentoAlteracaoInput formaPagamentoAlteracaoInput) {
+	public FormaPagamentoModel atualizar(@PathVariable Long id, @RequestBody @Valid FormaPagamentoInput formaPagamentoAlteracaoInput) {
 		FormaPagamento formaPagamentoAtual = formaPagamentoService.buscarOuFalhar(id);
 		formaPagamentoInputDisassembler.copyToDomainObject(formaPagamentoAlteracaoInput, formaPagamentoAtual);
-		return formaPagamentoModelAssembler.toModel(formaPagamentoService.salvar(formaPagamentoAtual));
+		formaPagamentoAtual = formaPagamentoService.salvar(formaPagamentoAtual);
+		return formaPagamentoModelAssembler.toModel(formaPagamentoAtual);
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
 		formaPagamentoService.excluir(id);
+	}
+	
+	@PutMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativar(@PathVariable Long id) {
+		formaPagamentoService.ativar(id);
+	}
+	
+	@DeleteMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativar(@PathVariable Long id) {
+		formaPagamentoService.inativar(id);
 	}
 
 }

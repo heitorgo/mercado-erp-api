@@ -9,25 +9,36 @@ import org.springframework.stereotype.Service;
 
 import com.mercado.domain.exception.CargoNaoEncontradoException;
 import com.mercado.domain.exception.EntidadeEmUsoException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.repository.CargoRepository;
 
 @Service
 public class CargoService {
+	
+	@Autowired
+	private LojaService lojaService;
 
 	@Autowired
 	private CargoRepository cargoRepository;
 
-	@Autowired
-	private LojaService lojaService;
-
 	private static final String msg_cargo_em_uso = "Cargo de codigo identificador %d está em uso";
+	private static final String msg_cargo_inativo = "Cargo de codigo identificador %d está inativo";
 
 	@Transactional
 	public Cargo salvar(Cargo cargo) {
 		Long lojaId = cargo.getLoja().getId();
 		Loja loja = lojaService.buscarOuFalhar(lojaId);
+		lojaService.verificarAtivo(loja);
+		cargo.setLoja(loja);
+		return cargoRepository.save(cargo);
+	}
+	
+	@Transactional
+	public Cargo salvar(Cargo cargo, Long lojaId) {
+		Loja loja = lojaService.buscarOuFalhar(lojaId);
+		lojaService.verificarAtivo(loja);
 		cargo.setLoja(loja);
 		return cargoRepository.save(cargo);
 	}
@@ -46,6 +57,40 @@ public class CargoService {
 
 	public Cargo buscarOuFalhar(Long id) {
 		return cargoRepository.findById(id).orElseThrow(() -> new CargoNaoEncontradoException(id));
+	}
+	
+	public Cargo buscarOuFalhar(Long lojaId, Long cargoId) {
+		return cargoRepository.findById(lojaId, cargoId).orElseThrow(() -> new CargoNaoEncontradoException(lojaId,cargoId));
+	}
+	
+	public void verificarAtivo(Cargo cargo) {
+		if(!cargo.getAtivo()) {
+			throw new NegocioException(String.format(msg_cargo_inativo, cargo.getId()));
+		}
+	}
+	
+	@Transactional
+	public void ativar(Long id) {
+		Cargo cargoAtual = buscarOuFalhar(id);
+		cargoAtual.ativar();
+	}
+	
+	@Transactional
+	public void inativar(Long id) {
+		Cargo cargoAtual = buscarOuFalhar(id);
+		cargoAtual.inativar();
+	}
+	
+	@Transactional
+	public void ativar(Long lojaId, Long cargoId) {
+		Cargo cargoAtual = buscarOuFalhar(lojaId, cargoId);
+		cargoAtual.ativar();
+	}
+	
+	@Transactional
+	public void inativar(Long lojaId, Long cargoId) {
+		Cargo cargoAtual = buscarOuFalhar(lojaId, cargoId);
+		cargoAtual.inativar();
 	}
 
 }

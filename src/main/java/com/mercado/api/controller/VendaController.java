@@ -6,12 +6,10 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,11 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercado.api.assembler.venda.VendaInputDisassembler;
 import com.mercado.api.assembler.venda.VendaModelAssembler;
-import com.mercado.api.model.VendaModel;
 import com.mercado.api.model.input.venda.VendaInput;
+import com.mercado.api.model.venda.VendaModel;
+import com.mercado.api.model.venda.VendaResumoModel;
 import com.mercado.domain.exception.CaixaNaoEncontradoException;
 import com.mercado.domain.exception.FuncionarioNaoEncontradoException;
 import com.mercado.domain.exception.NegocioException;
+import com.mercado.domain.exception.VendaNaoEncontradaException;
 import com.mercado.domain.model.Venda;
 import com.mercado.domain.repository.VendaRepository;
 import com.mercado.domain.service.VendaService;
@@ -45,9 +45,9 @@ public class VendaController {
 	private VendaInputDisassembler vendaInputDisassembler;
 
 	@GetMapping
-	public List<VendaModel> listar() {
+	public List<VendaResumoModel> listar() {
 		List<Venda> vendas = vendaRepository.findAll();
-		return vendaModelAssembler.toCollectionModel(vendas);
+		return vendaModelAssembler.toCollectionResumoModel(vendas);
 	}
 
 	@GetMapping("/{id}")
@@ -56,12 +56,12 @@ public class VendaController {
 	}
 
 	@GetMapping("/descricao")
-	public ResponseEntity<?> listarPorDescricao(String descricao) {
+	public List<VendaModel> listarPorDescricao(String descricao) {
 		List<Venda> vendas = vendaRepository.findAllByDescricaoContaining(descricao);
 		if (vendas.isEmpty()) {
-			return ResponseEntity.notFound().build();
+			throw new VendaNaoEncontradaException(String.format("Nenhuma venda contém a descrição %s", descricao));
 		}
-		return ResponseEntity.ok(vendaModelAssembler.toCollectionModel(vendas));
+		return vendaModelAssembler.toCollectionModel(vendas);
 	}
 
 	@PostMapping
@@ -69,26 +69,11 @@ public class VendaController {
 	public VendaModel adicionar(@RequestBody @Valid VendaInput vendaInput) {
 		try {
 			Venda venda = vendaInputDisassembler.toDomainModel(vendaInput);
-			return vendaModelAssembler.toModel(vendaService.salvar(venda));
-		} catch (CaixaNaoEncontradoException e) {
-			throw new NegocioException(e.getMessage(), e);
-		} catch (FuncionarioNaoEncontradoException e) {
-			throw new NegocioException(e.getMessage(), e);
-		}
-	}
-
-	@PutMapping("/{id}")
-	public VendaModel atualizar(@PathVariable Long id, @RequestBody @Valid VendaInput vendaInput) {
-		try {
-			Venda vendaAtual = vendaService.buscarOuFalhar(id);
-			vendaInputDisassembler.copyToDomainObject(vendaInput, vendaAtual);
-			return vendaModelAssembler.toModel(vendaService.salvar(vendaAtual));
-		} catch (CaixaNaoEncontradoException e) {
-			throw new NegocioException(e.getMessage(), e);
-		} catch (FuncionarioNaoEncontradoException e) {
+			venda = vendaService.salvar(venda);
+			return vendaModelAssembler.toModel(venda);
+		} catch (CaixaNaoEncontradoException | FuncionarioNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
-
 	}
 
 	@DeleteMapping("/{id}")

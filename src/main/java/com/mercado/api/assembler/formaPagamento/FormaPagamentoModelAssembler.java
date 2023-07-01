@@ -7,7 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.FormaPagamentoModel;
+import com.mercado.api.model.formaPagamento.FormaPagamentoModel;
 import com.mercado.domain.model.FormaPagamento;
 
 @Component

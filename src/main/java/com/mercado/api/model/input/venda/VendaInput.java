@@ -1,14 +1,16 @@
 package com.mercado.api.model.input.venda;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 
 import com.mercado.api.model.input.caixa.CaixaIdInput;
+import com.mercado.api.model.input.formaPagamento.FormaPagamentoIdInput;
 import com.mercado.api.model.input.funcionario.FuncionarioIdInput;
+import com.mercado.api.model.input.itemVenda.ItemVendaInput;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +18,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VendaInput {
-	
-	@NotNull
-	@PositiveOrZero
-	private BigDecimal valor;
 	
 	@NotBlank
 	private String descricao;
@@ -29,6 +27,15 @@ public class VendaInput {
 	private CaixaIdInput caixa;
 
 	@Valid
-	private  FuncionarioIdInput funcionario;
+	private FuncionarioIdInput funcionario;
+	
+	@Valid
+	@NotNull
+	private FormaPagamentoIdInput formaPagamento;
+	
+	@Size(min = 1)
+	@Valid
+	@NotNull
+	private List<ItemVendaInput> itens;
 	
 }

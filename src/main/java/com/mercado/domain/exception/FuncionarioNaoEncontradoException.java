@@ -11,5 +11,9 @@ public class FuncionarioNaoEncontradoException extends EntidadeNaoEncontradaExce
 	public FuncionarioNaoEncontradoException(Long id) {
 		super(String.format("Funcionario de código identificador %d não foi encontrado", id));
 	}
+	
+	public FuncionarioNaoEncontradoException(Long funcionarioId, Long cargoId) {
+		super(String.format("Funcionario de código identificador %d não foi encontrado para a cargo de código %d", funcionarioId, cargoId));
+	}
 
 }

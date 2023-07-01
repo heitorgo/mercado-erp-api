@@ -1,8 +1,18 @@
 {
-    "valor": 40.0,
-    "descricao": "Venda de cerveja",
-    "caixa": null,
+    "descricao": "Venda de porcas",
+    "caixa": {
+        "id": null
+    },
     "funcionario": {
         "id": 1
-    }
+    },
+    "formaPagamento":{
+        "id": 1
+    },
+    "itens":[
+        {
+            "produtoId": 1,
+            "quantidade": 20
+        }
+    ]
 }

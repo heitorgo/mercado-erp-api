@@ -2,7 +2,9 @@ package com.mercado.domain.model;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,9 +38,10 @@ public class Empresa {
 	@Column(nullable = false)
 	private String razaoSocial;
 	
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Usuario usuario;
+	@ManyToMany
+	@JoinTable(name = "empresa_usuario_responsavel", joinColumns = @JoinColumn(name = "empresa_id"),
+					inverseJoinColumns = @JoinColumn(name="usuario_id"))
+	private Set<Usuario> usuarios = new HashSet<>();
 
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
@@ -48,9 +52,25 @@ public class Empresa {
 	private OffsetDateTime dataAtualizacao;
 
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
 
 	@OneToMany(mappedBy = "empresa")
 	private List<Loja> lojas = new ArrayList<>();
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
+	public boolean associarResponsavel(Usuario usuario) {
+		return getUsuarios().add(usuario);
+	}
+	
+	public boolean desassociarResponsavel(Usuario usuario) {
+		return getUsuarios().remove(usuario);
+	}
 
 }

@@ -5,15 +5,15 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,7 +31,6 @@ public class Venda {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(nullable = false)
 	private BigDecimal valor;
 
 	@Column(nullable = false)
@@ -53,12 +52,23 @@ public class Venda {
 	@JoinColumn(nullable = false)
 	private Funcionario funcionario;
 
-	@ManyToMany
-	@JoinTable(name = "venda_forma_pagamento", joinColumns = @JoinColumn(name = "venda_id"), inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
-	private List<FormaPagamento> formasPagamento = new ArrayList<>();
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private FormaPagamento formaPagamento;
 	
-	@ManyToMany
-	@JoinTable(name = "venda_produto", joinColumns = @JoinColumn(name = "venda_id"), inverseJoinColumns = @JoinColumn(name = "produto_id"))
-	private List<Produto> produtos = new ArrayList<>();
+	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+	private List<ItemVenda> itens = new ArrayList<>();
+	
+	public void calcularValor() {
+		getItens().forEach(ItemVenda::calcularValorTotal);
+		
+		this.valor = getItens().stream()
+				.map(item -> item.getValorTotal())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+	
+	public void atribuirVendaAosItens() {
+		getItens().forEach(item -> item.setVenda(this));
+	}
 
 }

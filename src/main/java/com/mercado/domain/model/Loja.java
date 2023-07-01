@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,7 +33,7 @@ public class Loja {
 	@Column(nullable = false)
 	private String nome;
 
-	private BigDecimal saldo;
+	private BigDecimal saldo = BigDecimal.ZERO;
 
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
@@ -44,9 +44,12 @@ public class Loja {
 	private OffsetDateTime dataAtualizacao;
 
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
+	
+	@Column(nullable = false)
+	private Boolean aberto = Boolean.TRUE;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private Empresa empresa;
 
@@ -58,5 +61,28 @@ public class Loja {
 	
 	@OneToMany(mappedBy = "loja")
 	private List<Produto> produtos = new ArrayList<>();
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
+	public void abrir() {
+		setAberto(true);
+	}
+	public void fechar() {
+		setAberto(false);
+	}
+	
+	public BigDecimal calcularSaldo() {
+		this.saldo = caixas.stream()
+				.map(caixa -> caixa.getSaldo())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		return getSaldo();
+	}
 
 }

@@ -17,12 +17,10 @@ import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.model.Loja;
-import com.mercado.domain.model.Usuario;
 import com.mercado.domain.service.CargoService;
 import com.mercado.domain.service.EmpresaService;
 import com.mercado.domain.service.FuncionarioService;
 import com.mercado.domain.service.LojaService;
-import com.mercado.domain.service.UsuarioService;
 import com.mercado.util.DatabaseCleaner;
 import com.mercado.util.ResourceUtils;
 
@@ -52,8 +50,6 @@ public class TesteFuncionarioIT {
 	@Autowired
 	private CargoService cargoService;
 	@Autowired
-	private UsuarioService usuarioService;
-	@Autowired
 	private DatabaseCleaner databaseCleaner;
 
 	@BeforeEach
@@ -74,16 +70,9 @@ public class TesteFuncionarioIT {
 	}
 
 	private void prepararDados() {
-		Usuario usuario1 = new Usuario();
-		usuario1.setNome("José Teixeira");
-		usuario1.setEmail("teixeiraze@hotmail.com");
-		usuario1.setSenha("Teixeira&2020*03");
-		usuarioService.salvar(usuario1);
-		
 		Empresa empresa1 = new Empresa();
 		empresa1.setNome("Auto peças itu");
 		empresa1.setRazaoSocial("Auto peças itu LTDA");
-		empresa1.setUsuario(usuario1);
 		empresaService.salvar(empresa1);
 
 		Loja loja1 = new Loja();

@@ -1,24 +1,21 @@
 package com.mercado.domain.model;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mercado.core.validation.Groups;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,43 +25,59 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Usuario {
 
-	@NotNull(groups = Groups.UsuarioId.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 
-	@NotBlank
 	@Column(nullable = false)
 	private String email;
 	
-	@NotBlank
 	@Column(nullable = false)
 	private String senha;
 	
-	@OneToMany(mappedBy = "usuario")
-	@JsonIgnore
-	private List<Empresa> empresas = new ArrayList<>();
+	@ManyToMany
+	@JoinTable(name = "usuario_grupo", joinColumns = @JoinColumn(name="usuario_id"),
+					inverseJoinColumns = @JoinColumn(name="grupo_id"))
+	private Set<Grupo> grupos = new HashSet<>();
 
-	@JsonIgnore
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
-	@PastOrPresent
 	private OffsetDateTime dataCadastro;
 
-	@JsonIgnore
 	@UpdateTimestamp
 	@Column(columnDefinition = "datetime")
-	@PastOrPresent
 	private OffsetDateTime dataAtualizacao;
 
-	@JsonIgnore
 	@NotNull
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
+	public boolean senhaCoincideCom(String senha) {
+	    return getSenha().equals(senha);
+	}
+
+	public boolean senhaNaoCoincideCom(String senha) {
+	    return !senhaCoincideCom(senha);
+	}
+	
+	public boolean associarGrupo(Grupo grupo) {
+		return getGrupos().add(grupo);
+	}
+	
+	public boolean desassociarGrupo(Grupo grupo) {
+		return getGrupos().remove(grupo);
+	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.mercado.domain.exception.EntidadeEmUsoException;
 import com.mercado.domain.exception.FormaPagamentoNaoEncontradaException;
+import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.FormaPagamento;
 import com.mercado.domain.repository.FormaPagamentoRepository;
 
@@ -19,6 +20,7 @@ public class FormaPagamentoService {
 	private FormaPagamentoRepository formaPagamentoRepository;
 
 	private static final String msg_forma_pagamento_em_uso = "A forma de pagamento de codigo identificador %d está em uso";
+	private static final String msg_forma_pagamento_inativa = "A forma de pagamento de codigo identificador %d está inativa";
 
 	@Transactional
 	public FormaPagamento salvar(FormaPagamento formaPagamento) {
@@ -39,6 +41,24 @@ public class FormaPagamentoService {
 
 	public FormaPagamento buscarOuFalhar(Long id) {
 		return formaPagamentoRepository.findById(id).orElseThrow(() -> new FormaPagamentoNaoEncontradaException(id));
+	}
+	
+	public void verificarAtivo(FormaPagamento formaPagamento) {
+		if(!formaPagamento.getAtivo()) {
+			throw new NegocioException(String.format(msg_forma_pagamento_inativa, formaPagamento.getId()));
+		}
+	}
+	
+	@Transactional
+	public void ativar(Long id) {
+		FormaPagamento formaPagamentoAtual = buscarOuFalhar(id);
+		formaPagamentoAtual.ativar();
+	}
+	
+	@Transactional
+	public void inativar(Long id) {
+		FormaPagamento formaPagamentoAtual = buscarOuFalhar(id);
+		formaPagamentoAtual.inativar();
 	}
 
 }

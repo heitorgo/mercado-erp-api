@@ -1,12 +1,12 @@
 package com.mercado.api.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercado.api.assembler.loja.LojaInputDisassembler;
 import com.mercado.api.assembler.loja.LojaModelAssembler;
-import com.mercado.api.model.LojaModel;
-import com.mercado.api.model.input.loja.LojaAlteracaoInput;
 import com.mercado.api.model.input.loja.LojaInput;
+import com.mercado.api.model.loja.LojaModel;
 import com.mercado.domain.exception.EmpresaNaoEncontradaException;
+import com.mercado.domain.exception.LojaNaoEncontradaException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Loja;
 import com.mercado.domain.repository.LojaRepository;
@@ -52,16 +52,17 @@ public class LojaController {
 
 	@GetMapping("/{id}")
 	public LojaModel buscar(@PathVariable Long id) {
-		return lojaModelAssembler.toModel(lojaService.buscarOuFalhar(id));
+		Loja loja = lojaService.buscarOuFalhar(id);
+		return lojaModelAssembler.toModel(loja);
 	}
 
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome) {
+	public List<LojaModel> listarPorNome(String nome) {
 		List<Loja> lojas = lojaRepository.findAllByNomeContaining(nome);
 		if (lojas.isEmpty()) {
-			return ResponseEntity.notFound().build();
+			throw new LojaNaoEncontradaException(String.format("Nenhuma loja contém o nome %s", nome));
 		}
-		return ResponseEntity.ok(lojaModelAssembler.toCollectionModel(lojas));
+		return lojaModelAssembler.toCollectionModel(lojas);
 
 	}
 
@@ -70,18 +71,20 @@ public class LojaController {
 	public LojaModel adicionar(@RequestBody @Valid LojaInput lojaInput) {
 		try {
 			Loja loja = lojaInputDisassembler.toDomainModel(lojaInput);
-			return lojaModelAssembler.toModel(lojaService.salvar(loja));
+			loja = lojaService.salvar(loja);
+			return lojaModelAssembler.toModel(loja);
 		} catch (EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public LojaModel atualizar(@PathVariable Long id, @RequestBody @Valid LojaAlteracaoInput lojaAlteracaoInput) {
+	public LojaModel atualizar(@PathVariable Long id, @RequestBody @Valid LojaInput lojaInput) {
 		try {
 			Loja lojaAtual = lojaService.buscarOuFalhar(id);
-			lojaInputDisassembler.copyToDomainObject(lojaAlteracaoInput, lojaAtual);
-			return lojaModelAssembler.toModel(lojaService.salvar(lojaAtual));
+			lojaInputDisassembler.copyToDomainObject(lojaInput, lojaAtual);
+			lojaAtual = lojaService.salvar(lojaAtual);
+			return lojaModelAssembler.toModel(lojaAtual);
 		} catch (EmpresaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
@@ -91,6 +94,35 @@ public class LojaController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
 		lojaService.excluir(id);
+	}
+	
+	@PutMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativar(@PathVariable Long id) {
+		lojaService.ativar(id);
+	}
+	
+	@DeleteMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativar(@PathVariable Long id) {
+		lojaService.inativar(id);
+	}
+	
+	@PutMapping("/{id}/abertura")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void abrir(@PathVariable Long id) {
+		lojaService.abrir(id);
+	}
+	
+	@PutMapping("/{id}/fechamento")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void fechar(@PathVariable Long id) {
+		lojaService.fechar(id);
+	}
+	
+	@GetMapping("/{id}/saldo")
+	public BigDecimal exibirSaldo(@PathVariable Long id) {
+		return lojaService.calcularSaldo(id);
 	}
 
 }

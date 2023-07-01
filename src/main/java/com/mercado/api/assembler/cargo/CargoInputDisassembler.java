@@ -4,8 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.input.cargo.CargoAlteracaoInput;
 import com.mercado.api.model.input.cargo.CargoInput;
+import com.mercado.api.model.input.cargo.LojaCargoInput;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Loja;
 
@@ -19,11 +19,19 @@ public class CargoInputDisassembler {
 		return modelMapper.map(cargoInput, Cargo.class);
 	}
 	
-	public void copyToDomainObject(CargoAlteracaoInput cargoAlteracaoInput, Cargo cargo) {
+	public Cargo toDomainModel(LojaCargoInput cargoLojaInput) {
+		return modelMapper.map(cargoLojaInput, Cargo.class);
+	}
+	
+	public void copyToDomainObject(CargoInput cargoInput, Cargo cargo) {
 		//para evitar erro de alteração de identificador de loja
 		cargo.setLoja(new Loja());
 		
-		modelMapper.map(cargoAlteracaoInput, cargo);
+		modelMapper.map(cargoInput, cargo);
+	}
+	
+	public void copyToDomainObject(LojaCargoInput cargoLojaInput, Cargo cargo) {
+		modelMapper.map(cargoLojaInput, cargo);
 	}
 
 }

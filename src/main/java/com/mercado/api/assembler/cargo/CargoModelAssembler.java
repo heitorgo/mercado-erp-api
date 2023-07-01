@@ -7,7 +7,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.CargoModel;
+import com.mercado.api.model.cargo.CargoModel;
+import com.mercado.api.model.cargo.CargoResumoModel;
+import com.mercado.api.model.cargo.LojaCargoModel;
 import com.mercado.domain.model.Cargo;
 
 @Component
@@ -20,9 +22,30 @@ public class CargoModelAssembler {
 		return modelMapper.map(cargo, CargoModel.class);
 	}
 	
+	public CargoResumoModel toResumoModel(Cargo cargo) {
+		return modelMapper.map(cargo, CargoResumoModel.class);
+	}
+	
+	public LojaCargoModel toLojaModel(Cargo cargo) {
+		return modelMapper.map(cargo, LojaCargoModel.class);
+	}
+	
+	
 	public List<CargoModel> toCollectionModel(List<Cargo> cargos){
 		return cargos.stream()
 				.map(cargo -> toModel(cargo))
+				.collect(Collectors.toList());
+	}
+	
+	public List<CargoResumoModel> toCollectionResumoModel(List<Cargo> cargos){
+		return cargos.stream()
+				.map(cargo -> toResumoModel(cargo))
+				.collect(Collectors.toList());
+	}
+	
+	public List<LojaCargoModel> toCollectionLojaModel(List<Cargo> cargos){
+		return cargos.stream()
+				.map(cargo -> toLojaModel(cargo))
 				.collect(Collectors.toList());
 	}
 

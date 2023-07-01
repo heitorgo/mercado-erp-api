@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,7 +35,7 @@ public class Caixa {
 	private String nome;
 
 	@Column(nullable = false)
-	private BigDecimal saldo;
+	private BigDecimal saldo = BigDecimal.ZERO;
 
 	@CreationTimestamp
 	@Column(columnDefinition = "datetime")
@@ -45,13 +46,31 @@ public class Caixa {
 	private OffsetDateTime dataAtualizacao;
 
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
 	private Loja loja;
 
 	@OneToMany(mappedBy = "caixa")
 	private List<Venda> vendas = new ArrayList<>();
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
+	public BigDecimal calcularSaldo() {
+		this.saldo = getVendas().stream()
+				.map(venda -> venda.getValor())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		return getSaldo();
+	}
+	
+	
 
 }

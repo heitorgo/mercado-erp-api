@@ -16,11 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 import com.mercado.domain.model.Caixa;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Loja;
-import com.mercado.domain.model.Usuario;
 import com.mercado.domain.service.CaixaService;
 import com.mercado.domain.service.EmpresaService;
 import com.mercado.domain.service.LojaService;
-import com.mercado.domain.service.UsuarioService;
 import com.mercado.util.DatabaseCleaner;
 import com.mercado.util.ResourceUtils;
 
@@ -36,8 +34,6 @@ public class TesteCaixaIT {
 	private Caixa caixa1;
 	private String jsonCaixaCorreto;
 	private String jsonCaixaIncorretoSemNome;
-	private String jsonCaixaIncorretoSemSaldo;
-	private String jsonCaixaIncorretoSaldo;
 	private String jsonCaixaIncorretoSemLoja;
 	private String jsonCaixaIncorretoLojaInexistente;
 	private static final Long idCaixaInexistente = 100L;
@@ -49,8 +45,6 @@ public class TesteCaixaIT {
 	private LojaService lojaService;
 	@Autowired
 	private EmpresaService empresaService;
-	@Autowired
-	private UsuarioService usuarioService;
 	@Autowired
 	private DatabaseCleaner databaseCleaner;
 
@@ -65,10 +59,6 @@ public class TesteCaixaIT {
 		jsonCaixaCorreto = ResourceUtils.getContentFromResource("/json/correto/caixa-correto.json");
 		jsonCaixaIncorretoSemNome = ResourceUtils
 				.getContentFromResource("/json/incorreto/caixa/caixa-incorreto-sem-nome.json");
-		jsonCaixaIncorretoSemSaldo = ResourceUtils
-				.getContentFromResource("/json/incorreto/caixa/caixa-incorreto-sem-saldo.json");
-		jsonCaixaIncorretoSaldo = ResourceUtils
-				.getContentFromResource("/json/incorreto/caixa/caixa-incorreto-saldo.json");
 		jsonCaixaIncorretoSemLoja = ResourceUtils
 				.getContentFromResource("/json/incorreto/caixa/caixa-incorreto-sem-loja.json");
 		jsonCaixaIncorretoLojaInexistente = ResourceUtils
@@ -76,16 +66,9 @@ public class TesteCaixaIT {
 	}
 
 	private void prepararDados() {
-		Usuario usuario = new Usuario();
-		usuario.setNome("José Teixeira");
-		usuario.setEmail("teixeiraze@hotmail.com");
-		usuario.setSenha("Teixeira&2020*03");
-		usuarioService.salvar(usuario);
-		
 		Empresa empresaAutoPecas = new Empresa();
 		empresaAutoPecas.setNome("Auto Peças Itu");
 		empresaAutoPecas.setRazaoSocial("Auto Peças Itu LTDA");
-		empresaAutoPecas.setUsuario(usuario);
 		empresaService.salvar(empresaAutoPecas);
 
 		Loja loja1 = new Loja();
@@ -127,18 +110,6 @@ public class TesteCaixaIT {
 	@Test
 	public void deveRetornarStatus400_QuandoCadastrarCaixaSemNome() {
 		given().body(jsonCaixaIncorretoSemNome).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
-				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
-	}
-
-	@Test
-	public void deveRetornarStatus400_QuandoCadastrarCaixaSemSaldo() {
-		given().body(jsonCaixaIncorretoSemSaldo).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
-				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
-	}
-
-	@Test
-	public void deveRetornarStatus400_QuandoCadastrarCaixaSaldoincorreta() {
-		given().body(jsonCaixaIncorretoSaldo).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
 				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
 

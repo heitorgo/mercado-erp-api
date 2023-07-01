@@ -6,7 +6,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mercado.api.assembler.funcionario.FuncionarioInputDisassembler;
 import com.mercado.api.assembler.funcionario.FuncionarioModelAssembler;
-import com.mercado.api.model.FuncionarioModel;
-import com.mercado.api.model.input.funcionario.FuncionarioAlteracaoInput;
+import com.mercado.api.model.funcionario.FuncionarioModel;
+import com.mercado.api.model.funcionario.FuncionarioResumoModel;
 import com.mercado.api.model.input.funcionario.FuncionarioInput;
 import com.mercado.domain.exception.CargoNaoEncontradoException;
+import com.mercado.domain.exception.FuncionarioNaoEncontradoException;
 import com.mercado.domain.exception.NegocioException;
 import com.mercado.domain.model.Funcionario;
 import com.mercado.domain.repository.FuncionarioRepository;
@@ -45,23 +45,24 @@ public class FuncionarioController {
 	private FuncionarioInputDisassembler funcionarioInputDisassembler;
 
 	@GetMapping
-	public List<FuncionarioModel> listar() {
+	public List<FuncionarioResumoModel> listar() {
 		List<Funcionario> funcionarios = funcionarioRepository.findAll();
-		return funcionarioModelAssembler.toCollectionModel(funcionarios);
+		return funcionarioModelAssembler.toCollectionResumoModel(funcionarios);
 	}
 
 	@GetMapping("/{id}")
 	public FuncionarioModel buscar(@PathVariable Long id) {
-		return funcionarioModelAssembler.toModel(funcionarioService.buscarOuFalhar(id));
+		Funcionario funcionario = funcionarioService.buscarOuFalhar(id);
+		return funcionarioModelAssembler.toModel(funcionario);
 	}
 
 	@GetMapping("/nome")
-	public ResponseEntity<?> listarPorNome(String nome) {
+	public List<FuncionarioModel> listarPorNome(String nome) {
 		List<Funcionario> funcionarios = funcionarioRepository.findAllByNomeContaining(nome);
 		if (funcionarios.isEmpty()) {
-			return ResponseEntity.notFound().build();
+			throw new FuncionarioNaoEncontradoException("Nenhum funcionario contém este nome");
 		}
-		return ResponseEntity.ok(funcionarioModelAssembler.toCollectionModel(funcionarios));
+		return funcionarioModelAssembler.toCollectionModel(funcionarios);
 	}
 
 	@PostMapping
@@ -69,26 +70,41 @@ public class FuncionarioController {
 	public FuncionarioModel adicionar(@RequestBody @Valid FuncionarioInput funcionarioInput) {
 		try {
 			Funcionario funcionario = funcionarioInputDisassembler.toDomainModel(funcionarioInput);
-			return funcionarioModelAssembler.toModel(funcionarioService.salvar(funcionario));
+			funcionario = funcionarioService.salvar(funcionario);
+			return funcionarioModelAssembler.toModel(funcionario);
 		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@PutMapping("/{id}")
-	public FuncionarioModel atualizar(@PathVariable Long id, @RequestBody @Valid FuncionarioAlteracaoInput funcionarioAlteracaoInput) {
+	public FuncionarioModel atualizar(@PathVariable Long id, @RequestBody @Valid FuncionarioInput funcionarioInput) {
 		try {
 			Funcionario funcionarioAtual = funcionarioService.buscarOuFalhar(id);
-			funcionarioInputDisassembler.copyToDomainObject(funcionarioAlteracaoInput, funcionarioAtual);
-			return funcionarioModelAssembler.toModel(funcionarioService.salvar(funcionarioAtual));
+			funcionarioInputDisassembler.copyToDomainObject(funcionarioInput, funcionarioAtual);
+			funcionarioAtual = funcionarioService.salvar(funcionarioAtual);
+			return funcionarioModelAssembler.toModel(funcionarioAtual);
 		} catch (CargoNaoEncontradoException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 	}
 
 	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
 		funcionarioService.excluir(id);
+	}
+	
+	@PutMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativar(@PathVariable Long id) {
+		funcionarioService.ativar(id);
+	}
+	
+	@DeleteMapping("/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativar(@PathVariable Long id) {
+		funcionarioService.inativar(id);
 	}
 
 }

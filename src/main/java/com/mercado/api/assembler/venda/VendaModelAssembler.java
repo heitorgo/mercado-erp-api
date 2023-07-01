@@ -7,7 +7,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.VendaModel;
+import com.mercado.api.model.venda.CaixaVendaModel;
+import com.mercado.api.model.venda.VendaModel;
+import com.mercado.api.model.venda.VendaResumoModel;
 import com.mercado.domain.model.Venda;
 
 @Component
@@ -20,10 +22,29 @@ public class VendaModelAssembler {
 		return modelMapper.map(venda, VendaModel.class);
 	}
 	
+	public VendaResumoModel toResumoModel(Venda venda) {
+		return modelMapper.map(venda, VendaResumoModel.class);
+	}
+	
+	public CaixaVendaModel toCaixaModel(Venda venda) {
+		return modelMapper.map(venda, CaixaVendaModel.class);
+	}
+	
 	public List<VendaModel> toCollectionModel(List<Venda> vendas){
 		return vendas.stream()
 				.map(venda -> toModel(venda))
 				.collect(Collectors.toList());
 	}
-
+	
+	public List<VendaResumoModel> toCollectionResumoModel(List<Venda> vendas){
+		return vendas.stream()
+				.map(venda -> toResumoModel(venda))
+				.collect(Collectors.toList());
+	}
+	
+	public List<CaixaVendaModel> toCollectionCaixaModel(List<Venda> vendas){
+		return vendas.stream()
+				.map(venda -> toCaixaModel(venda))
+				.collect(Collectors.toList());
+	}
 }

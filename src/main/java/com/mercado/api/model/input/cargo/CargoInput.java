@@ -20,11 +20,9 @@ public class CargoInput {
 	private String titulo;
 	
 	@Positive
-	@NotNull
 	private BigDecimal remuneracao;
 	
 	@NotNull
 	@Valid
 	private LojaIdInput loja;
-
 }

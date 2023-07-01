@@ -16,11 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 import com.mercado.domain.model.Cargo;
 import com.mercado.domain.model.Empresa;
 import com.mercado.domain.model.Loja;
-import com.mercado.domain.model.Usuario;
 import com.mercado.domain.service.CargoService;
 import com.mercado.domain.service.EmpresaService;
 import com.mercado.domain.service.LojaService;
-import com.mercado.domain.service.UsuarioService;
 import com.mercado.util.DatabaseCleaner;
 import com.mercado.util.ResourceUtils;
 
@@ -36,7 +34,6 @@ public class TesteCargoIT {
 	private Cargo cargoGerente;
 	private String jsonCargoCorreto;
 	private String jsonCargoIncorretoSemTitulo;
-	private String jsonCargoIncorretoSemRemuneracao;
 	private String jsonCargoIncorretoRemuneracao;
 	private String jsonCargoIncorretoSemLoja;
 	private String jsonCargoIncorretoLojaInexistente;
@@ -49,8 +46,6 @@ public class TesteCargoIT {
 	private LojaService lojaService;
 	@Autowired
 	private EmpresaService empresaService;
-	@Autowired
-	private UsuarioService usuarioService;
 	@Autowired
 	private DatabaseCleaner databaseCleaner;
 
@@ -65,8 +60,6 @@ public class TesteCargoIT {
 		jsonCargoCorreto = ResourceUtils.getContentFromResource("/json/correto/cargo-correto.json");
 		jsonCargoIncorretoSemTitulo = ResourceUtils
 				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-titulo.json");
-		jsonCargoIncorretoSemRemuneracao = ResourceUtils
-				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-sem-remuneracao.json");
 		jsonCargoIncorretoRemuneracao = ResourceUtils
 				.getContentFromResource("/json/incorreto/cargo/cargo-incorreto-remuneracao.json");
 		jsonCargoIncorretoSemLoja = ResourceUtils
@@ -76,16 +69,10 @@ public class TesteCargoIT {
 	}
 
 	private void prepararDados() {
-		Usuario usuario = new Usuario();
-		usuario.setNome("José Teixeira");
-		usuario.setEmail("teixeiraze@hotmail.com");
-		usuario.setSenha("Teixeira&2020*03");
-		usuarioService.salvar(usuario);
 		
 		Empresa empresaAutoPecas = new Empresa();
 		empresaAutoPecas.setNome("Auto Peças Itu");
 		empresaAutoPecas.setRazaoSocial("Auto Peças Itu LTDA");
-		empresaAutoPecas.setUsuario(usuario);
 		empresaService.salvar(empresaAutoPecas);
 
 		Loja loja1 = new Loja();
@@ -128,13 +115,6 @@ public class TesteCargoIT {
 	public void deveRetornarStatus400_QuandoCadastrarCargoSemTitulo() {
 		given().body(jsonCargoIncorretoSemTitulo).accept(ContentType.JSON).contentType(ContentType.JSON).when().post()
 				.then().statusCode(HttpStatus.BAD_REQUEST.value()).body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
-	}
-
-	@Test
-	public void deveRetornarStatus400_QuandoCadastrarCargoSemRemuneracao() {
-		given().body(jsonCargoIncorretoSemRemuneracao).accept(ContentType.JSON).contentType(ContentType.JSON).when()
-				.post().then().statusCode(HttpStatus.BAD_REQUEST.value())
-				.body("title", equalTo(DADOS_INVALIDOS_PROBLEM_TYPE));
 	}
 
 	@Test

@@ -7,7 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mercado.api.model.LojaModel;
+import com.mercado.api.model.loja.LojaModel;
 import com.mercado.domain.model.Loja;
 
 @Component

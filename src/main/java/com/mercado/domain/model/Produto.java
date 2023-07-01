@@ -47,10 +47,24 @@ public class Produto {
 	private OffsetDateTime dataAtualizacao;
 
 	@Column(nullable = false)
-	private boolean ativo = true;
+	private Boolean ativo = Boolean.TRUE;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Loja loja;
+	
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
+	public void reduzirQuantidade(Integer quantidadeReduzida){
+		Integer quantidade = getQuantidade();
+		quantidade -= quantidadeReduzida;
+		setQuantidade(quantidade);
+	}
 	
 }
