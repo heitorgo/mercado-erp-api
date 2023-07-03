@@ -1,6 +1,6 @@
 # Mercado ERP API
 
-## API REST que simula um sistema ERP disponibilizando CRUD de várias classes. Feita utilizando Spring Framework, JPA Hibernate, versionamento de banco de dados com Flyway, banco MySQL, e testes com JUnit 5.
+## API de sistema ERP feita utilizando Spring Framework integrado ao banco de dados MySQL.
 
 <p align="center">
  <a href="#pre-requisitos">Pré-requisitos</a> •
@@ -26,12 +26,8 @@ $ git clone <https://github.com/heitorgo/mercado-api>
 ### Acesse a pasta do projeto no terminal/cmd
 $ cd mercado-api
 
-### Verifique se seu usuário e senha no MySQL Server, no caso deste repositório o padrão é:
-
-### usuário: root
-### senha:
-
-Caso este não seja seu caso será necessário alterar os arquivos src\main\resources\application.properties e src\test\resources\application-test.properties em uma IDE ou editor de texto. Dentro destes arquivos altere os parametro spring.datasource.username e spring.datasource.password conforme seu usuário e senha do MySQL
+### Verifique se seu usuário e senha no MySQL Server, no caso deste repositório o padrão é encontrado no arquivo application.properties
+src\main\resources\application.properties e src\test\resources\application-test.properties
 
 ### Novamente no diretório do projeto pelo terminal vamos empacotar o projeto com  o Maven
 $ mvn package
@@ -47,8 +43,17 @@ Ferramentas usadas na construção do projeto:
 
 - [Java](https://www.oracle.com/br/java/)
 - [Spring Framework](https://spring.io/)
+- [MySQL](https://www.mysql.com/)
+- [Project Lombok](https://projectlombok.org/)
+- [Flyway](https://flywaydb.org/)
+- [Apache commons](https://commons.apache.org/)
+- [REST-assured](https://rest-assured.io/)
+- [ModelMapper](https://modelmapper.org/)
 
 ## Autor
+---
 
-Heitor Gonçalves
+<img style="border-radius: 50%;" src="./assets/img/Autor.jpg" width="100px;" alt=""/>
+<br/>
+<sub><b>Heitor Gonçalves</b></sub>
 
