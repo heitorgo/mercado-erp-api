@@ -96,6 +96,10 @@ public class ProdutoService {
 	
 	@Transactional
 	public void reduzirQuantidade(Produto produto, Integer quantidadeReduzida) {
+		if(produto.getQuantidade() < quantidadeReduzida) {
+			throw new NegocioException(String.format(
+					"A quantidade em estoque do produto de código %d é menor que a quantidade a ser reduzida", produto.getId()));
+		}
 		produto.reduzirQuantidade(quantidadeReduzida);
 	}
 

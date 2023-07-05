@@ -93,6 +93,7 @@ public class VendaService {
 		venda.getItens().forEach(item -> {
 			Produto produto = produtoService.buscarOuFalhar(
 				venda.getCaixa().getLoja().getId(), item.getProduto().getId());
+			produtoService.reduzirQuantidade(produto, item.getQuantidade());
 			item.setVenda(venda);
 			item.setProduto(produto);
 			item.setValorUnitario(produto.getValor());
